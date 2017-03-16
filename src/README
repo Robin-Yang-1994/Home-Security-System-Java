@@ -1,0 +1,24 @@
+Demo of a "relay" - i.e. a client and server at the same time (using IOR in file trick) - which adds GUIs to all components.
+
+1. compile IDL
+
+	idlj -fall Relay.idl
+
+2. Compile all stubs and skeletons
+
+	javac *.java ClientAndServer/*.java
+
+3. start server
+
+	java RelayServer &
+
+4. start the relay (the client/server in the middle)
+
+        java Relay &
+
+5. start the client
+
+	java RelayClient &
+
+
+
