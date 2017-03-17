@@ -1,8 +1,10 @@
 import ClientAndServer.*;
 
 import org.omg.CORBA.*;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.PortableServer.*;
-import org.omg.PortableServer.POA;
 
 import java.io.*;
 import javax.swing.*;
@@ -12,10 +14,13 @@ import java.awt.event.ActionEvent;
 
 class HelloServant extends HelloWorldPOA {
 	private RegionalOffice parent;
+	private ORB orb;
 
-	public HelloServant(RegionalOffice parentGUI) {
+	public HelloServant(RegionalOffice parentGUI, ORB orb_val) {
 		// store reference to parent GUI
 		parent = parentGUI;
+		
+		orb = orb_val;
 	}
 
 	public String hello_world() {
@@ -52,27 +57,63 @@ public class RegionalOffice extends JFrame {
 	private JPanel panel;
 	private JScrollPane scrollpane;
 	private JTextArea textarea;
+	private HelloServant helloRef;
 
 	public RegionalOffice(String[] args){
+//		try {
+//			// create and initialize the ORB
+//			ORB orb = ORB.init(args, null);
+//
+//			// get reference to rootpoa & activate the POAManager
+//			POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+//			rootpoa.the_POAManager().activate();
+//
+//			// create servant and register it with the ORB
+//			HelloServant helloRef = new HelloServant(this);
+//
+//			// get the 'stringified IOR'
+//			org.omg.CORBA.Object ref = rootpoa.servant_to_reference(helloRef);
+//			String stringified_ior = orb.object_to_string(ref);
+//
+//			// Save IOR to file
+//			BufferedWriter out = new BufferedWriter(new FileWriter("server.ref"));
+//			out.write(stringified_ior);
+//			out.close();
+		
 		try {
-			// create and initialize the ORB
-			ORB orb = ORB.init(args, null);
+		    // Initialize the ORB
+		    ORB orb = ORB.init(args, null);
+		    
+		    // get reference to rootpoa & activate the POAManager
+		    POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+		    rootpoa.the_POAManager().activate();
+		    
+		    // Create the Count servant object
+		    helloRef = new HelloServant(this, orb);
 
-			// get reference to rootpoa & activate the POAManager
-			POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-			rootpoa.the_POAManager().activate();
+		    // get object reference from the servant
+		    org.omg.CORBA.Object ref = rootpoa.servant_to_reference(helloRef);
+		    ClientAndServer.HelloWorld cref = HelloWorldHelper.narrow(ref);
+		    
+		    // Get a reference to the Naming service
+		    org.omg.CORBA.Object nameServiceObj = 
+			orb.resolve_initial_references ("NameService");
+		    if (nameServiceObj == null) {
+			System.out.println("nameServiceObj = null");
+			return;
+		    }
 
-			// create servant and register it with the ORB
-			HelloServant helloRef = new HelloServant(this);
-
-			// get the 'stringified IOR'
-			org.omg.CORBA.Object ref = rootpoa.servant_to_reference(helloRef);
-			String stringified_ior = orb.object_to_string(ref);
-
-			// Save IOR to file
-			BufferedWriter out = new BufferedWriter(new FileWriter("server.ref"));
-			out.write(stringified_ior);
-			out.close();
+		    // Use NamingContextExt which is part of the Interoperable
+		    // Naming Service (INS) specification.
+		    NamingContextExt nameService = NamingContextExtHelper.narrow(nameServiceObj);
+		    if (nameService == null) {
+			System.out.println("nameService = null");
+			return;
+		    }
+		    
+		    // bind the Count object in the Naming service
+		    NameComponent[] countName = nameService.to_name("Regional Office");
+		    nameService.rebind(countName, cref);
 
 
 			// set up the GUI
@@ -94,9 +135,6 @@ public class RegionalOffice extends JFrame {
 				}
 			} );
 
-			// remove the "orb.run()" command,
-			// or the server will run but the GUI will not be visible
-			// orb.run();
 
 		} catch (Exception e) {
 			System.err.println("ERROR: " + e);
