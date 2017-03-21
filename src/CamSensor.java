@@ -109,6 +109,7 @@ public class CamSensor extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					panicButton.setEnabled(false);
 					btnOff.setEnabled(false);
+					statusField.setText(null);
 					statusField.setEnabled(false);
 					relay.switchOff(camID);
 				}

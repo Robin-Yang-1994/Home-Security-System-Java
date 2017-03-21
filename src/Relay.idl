@@ -8,6 +8,7 @@ module ClientAndServer {
     string fetch_message();
 	string sendPanicMessage(in string camID);
 	string notifyServer(in string camID);
+	void resetCamera();
     };
 
     interface HelloWorld {
@@ -16,5 +17,6 @@ module ClientAndServer {
 	string switchOn(in string camID);
 	string switchOff(in string camID);
 	void showCamStatus(in string messageStatus);
+	void resetSensor();
     };			
 };

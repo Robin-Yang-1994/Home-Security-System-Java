@@ -49,6 +49,10 @@ class HelloServant extends HelloWorldPOA {
 	public void showCamStatus(String messageStatus){
 		parent.addMessage(messageStatus);
 	}
+	
+	public void resetSensor(){
+		
+	}
 
 }
 
@@ -58,6 +62,7 @@ public class RegionalOffice extends JFrame {
 	private JScrollPane scrollpane;
 	private JTextArea textarea;
 	private HelloServant helloRef;
+	private JButton btnReset;
 
 	public RegionalOffice(String[] args){
 //		try {
@@ -112,7 +117,8 @@ public class RegionalOffice extends JFrame {
 		    }
 		    
 		    // bind the Count object in the Naming service
-		    NameComponent[] countName = nameService.to_name("Regional Office");
+		    String name = "Office";
+		    NameComponent[] countName = nameService.to_name(name);
 		    nameService.rebind(countName, cref);
 
 
@@ -125,6 +131,15 @@ public class RegionalOffice extends JFrame {
 
 			panel.add(scrollpane);
 			getContentPane().add(panel, "Center");
+			
+			btnReset = new JButton("Reset");
+			btnReset.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					helloRef.resetSensor();
+				}
+			});
+			btnReset.setBounds(235, 357, 117, 29);
+			panel.add(btnReset);
 
 			setSize(400, 500);
 			setTitle("Regional Office Server");

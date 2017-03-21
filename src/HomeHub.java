@@ -69,7 +69,8 @@ class RelayServant extends RelayPOA {
 			}
 
 			// resolve the Count object reference in the Naming service
-			server = HelloWorldHelper.narrow(nameService.resolve_str("Regional Office"));
+			String name = "Office";
+			server = HelloWorldHelper.narrow(nameService.resolve_str(name));
 			
 			} catch (Exception e) {
 			System.out.println("ERROR : " + e) ;
@@ -124,6 +125,10 @@ class RelayServant extends RelayPOA {
 		server.panicServer(camID);
 		server.showCamStatus(messageStatus);
 		return "Notified Server";
+	}
+	
+	public void resetCamera(){
+		
 	}
 
 
