@@ -90,12 +90,12 @@ class HelloServant extends HelloWorldPOA {
 		return relay2.toString();
 	}
 	
-	public void resetSensor(String camID){
-		relay2.resetCamera();
-		parent.addMessage("Alarm " + camID + " has been resetted \n");
+	public void resetSensor(String CamID){
+		connection(parent.textFieldHub.getText());
+		relay2.resetCamera(CamID);
+		parent.addMessage("Alarm " + CamID + " has been resetted \n");
 		
 	}
-
 }
 
 
@@ -105,6 +105,8 @@ public class RegionalOffice extends JFrame {
 	private JTextArea textarea;
 	private HelloServant helloRef;
 	private JButton btnReset;
+	public static JTextField textFieldHub;
+	public static JTextField textFieldCam;
 
 	public RegionalOffice(String[] args){
 //		try {
@@ -181,11 +183,21 @@ public class RegionalOffice extends JFrame {
 			btnReset = new JButton("Reset");
 			btnReset.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					helloRef.resetSensor(name);
+					helloRef.resetSensor(textFieldCam.getText());
 				}
 			});
 			btnReset.setBounds(235, 357, 117, 29);
 			panel.add(btnReset);
+			
+			textFieldHub = new JTextField();
+			textFieldHub.setBounds(219, 405, 130, 26);
+			panel.add(textFieldHub);
+			textFieldHub.setColumns(10);
+			
+			textFieldCam = new JTextField();
+			textFieldCam.setBounds(37, 405, 130, 26);
+			panel.add(textFieldCam);
+			textFieldCam.setColumns(10);
 
 			setSize(400, 500);
 			setTitle("Regional Office Server");

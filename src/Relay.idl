@@ -8,6 +8,7 @@ module ClientAndServer {
 	void switchOff(in string camID);
 	void sendPanicMessage(in string camID);
 	void setCamServer(in string camID);
+	void resetCamStatus();
 	};
 	
 	
@@ -18,7 +19,7 @@ module ClientAndServer {
 	string sendPanicMessage(in string camID);
 	string notifyServer(in string camID);
 	void setConnection(in string name);
-	void resetCamera();
+	void resetCamera(in string c);
 	string setCamConnection(in string name);
     };
 
@@ -29,6 +30,6 @@ module ClientAndServer {
 	string switchOff(in string camID);
 	void showCamStatus(in string messageStatus);
 	string connection(in string name);
-	void resetSensor(in string camID);
+	void resetSensor(in string CamID);
     };			
 };

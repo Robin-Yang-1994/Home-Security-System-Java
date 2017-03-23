@@ -76,6 +76,8 @@ class ClientServant extends ClientPOA{
 	}
 	
 	public void resetCamStatus(){
+		parent.statusField.setText("");
+		System.out.println("working!!!");
 	}
 }
 
@@ -84,7 +86,7 @@ public class CamSensor extends JFrame {
 	private JScrollPane scrollpane;
 	private JTextArea textarea;
 	private JButton panicButton;
-	private JTextField statusField;
+	public static JTextField statusField;
 	public static String camID;
 	private JButton btnOff, btnOn;
 	private ClientServant clientRef;

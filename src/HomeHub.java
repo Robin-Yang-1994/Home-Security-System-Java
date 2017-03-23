@@ -25,7 +25,7 @@ class RelayServant extends RelayPOA {
 	private long timeDiff = 0; 
 	private String messageStatus;
 	private String camID;
-	private ClientAndServer.Relay relay2;
+	private ClientAndServer.Client relay2;
 
 	public RelayServant(HomeHub parentGUI, ORB orb_val) {
 		// store reference to parent GUI
@@ -164,7 +164,7 @@ class RelayServant extends RelayPOA {
 			}
 			
 			// resolve the Count object reference in the Naming service
-			relay2 = RelayHelper.narrow(nameService.resolve_str(name));	
+			relay2 = ClientHelper.narrow(nameService.resolve_str(name));	
 			
 		} catch (Exception e) {
 			System.out.println("ERROR : " + e) ;
@@ -173,8 +173,10 @@ class RelayServant extends RelayPOA {
 		return relay2.toString();
 	}
 	
-	public void resetCamera(){
-		//relay2.resetCamStatus();
+	public void resetCamera(String c){
+		setConnection(c);
+		relay2.resetCamStatus();
+		
 	}
 
 }
