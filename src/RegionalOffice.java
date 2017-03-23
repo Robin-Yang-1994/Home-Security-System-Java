@@ -7,6 +7,8 @@ import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.PortableServer.*;
 
 import java.io.*;
+import java.util.Properties;
+
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -15,6 +17,7 @@ import java.awt.event.ActionEvent;
 class HelloServant extends HelloWorldPOA {
 	private RegionalOffice parent;
 	private ORB orb;
+	private ClientAndServer.Relay relay2;
 
 	public HelloServant(RegionalOffice parentGUI, ORB orb_val) {
 		// store reference to parent GUI
@@ -50,7 +53,46 @@ class HelloServant extends HelloWorldPOA {
 		parent.addMessage(messageStatus);
 	}
 	
-	public void resetSensor(){
+	public String connection(String name){
+		try {
+			// Initialize the ORB
+			System.out.println("Initializing the ORB");
+			
+			Properties prop = new Properties();
+			prop.put("org.omg.CORBA.ORBInitialPort","1050");
+			prop.put("org.omg.CORBA.ORBInitialPort","localhost");
+			
+			//ORB orb = ORB.init(args, null);
+
+			// Get a reference to the Naming service
+			org.omg.CORBA.Object nameServiceObj = 
+					orb.resolve_initial_references ("NameService");
+			if (nameServiceObj == null) {
+				System.out.println("nameServiceObj = null");
+				
+			}
+
+			// Use NamingContextExt instead of NamingContext. This is 
+			// part of the Interoperable naming Service.  
+			NamingContextExt nameService = NamingContextExtHelper.narrow(nameServiceObj);
+			if (nameService == null) {
+				System.out.println("nameService = null");
+				
+			}
+			
+			// resolve the Count object reference in the Naming service
+			relay2 = RelayHelper.narrow(nameService.resolve_str(name));	
+			
+		} catch (Exception e) {
+			System.out.println("ERROR : " + e) ;
+			e.printStackTrace(System.out);
+		}
+		return relay2.toString();
+	}
+	
+	public void resetSensor(String camID){
+		relay2.resetCamera();
+		parent.addMessage("Alarm " + camID + " has been resetted \n");
 		
 	}
 
@@ -87,7 +129,11 @@ public class RegionalOffice extends JFrame {
 		
 		try {
 		    // Initialize the ORB
-		    ORB orb = ORB.init(args, null);
+			Properties prop = new Properties();
+			prop.put("org.omg.CORBA.ORBInitialPort","1050");
+			prop.put("org.omg.CORBA.ORBInitialPort","localhost");
+			
+		    ORB orb = ORB.init(args, prop);
 		    
 		    // get reference to rootpoa & activate the POAManager
 		    POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
@@ -135,7 +181,7 @@ public class RegionalOffice extends JFrame {
 			btnReset = new JButton("Reset");
 			btnReset.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					helloRef.resetSensor();
+					helloRef.resetSensor(name);
 				}
 			});
 			btnReset.setBounds(235, 357, 117, 29);

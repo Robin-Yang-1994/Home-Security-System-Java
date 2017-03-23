@@ -2,13 +2,24 @@
 // Uses the old favourite Hello World as a basis.
 
 module ClientAndServer {
+	
+	interface Client{
+	void switchOn(in string camID);
+	void switchOff(in string camID);
+	void sendPanicMessage(in string camID);
+	void setCamServer(in string camID);
+	};
+	
+	
     interface Relay {
     string switchOn(in string camID);
     string switchOff(in string camID);
     string fetch_message();
 	string sendPanicMessage(in string camID);
 	string notifyServer(in string camID);
+	void setConnection(in string name);
 	void resetCamera();
+	string setCamConnection(in string name);
     };
 
     interface HelloWorld {
@@ -17,6 +28,7 @@ module ClientAndServer {
 	string switchOn(in string camID);
 	string switchOff(in string camID);
 	void showCamStatus(in string messageStatus);
-	void resetSensor();
+	string connection(in string name);
+	void resetSensor(in string camID);
     };			
 };

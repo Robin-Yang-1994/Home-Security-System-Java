@@ -1,35 +1,34 @@
 import ClientAndServer.*;
 
 import org.omg.CORBA.*;
+import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.PortableServer.*;
-import org.omg.PortableServer.POA;
 
 import java.io.*;
+import java.util.Properties;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-
-public class CamSensor extends JFrame {
-	private JPanel textpanel, buttonpanel;
-	private JScrollPane scrollpane;
-	private JTextArea textarea;
-	private JButton panicButton;
-	private JTextField statusField;
-	private static String camID;
-	private JButton btnOff, btnOn;
-
-
-	public CamSensor(String[] args, String camID2) {
-		
-		camID = camID2;
-		
+class ClientServant extends ClientPOA{
+	
+	private ClientAndServer.Relay relay;
+	private ORB orb;
+	private CamSensor parent;
+	
+	public ClientServant(CamSensor parentGUI, ORB orb_val){
+		parent = parentGUI;
+		orb = orb_val;
 		try {
 			// Initialize the ORB
 			System.out.println("Initializing the ORB");
-			ORB orb = ORB.init(args, null);
+			//ORB orb = ORB.init(args, null);
+			Properties prop = new Properties();
+			prop.put("org.omg.CORBA.ORBInitialPort","1050");
+			prop.put("org.omg.CORBA.ORBInitialPort","localhost");
 
 			// Get a reference to the Naming service
 			org.omg.CORBA.Object nameServiceObj = 
@@ -46,25 +45,121 @@ public class CamSensor extends JFrame {
 				System.out.println("nameService = null");
 				return;
 			}
-
+			String name = parent.homeHubName;
 			// resolve the Count object reference in the Naming service
-			ClientAndServer.Relay relay = RelayHelper.narrow(nameService.resolve_str(camID));	
+			relay = RelayHelper.narrow(nameService.resolve_str(name));
+			
+		} catch (Exception e) {
+			System.out.println("ERROR : " + e) ;
+			e.printStackTrace(System.out);
+		}
+		
+	}
 
-			//	try {
-			//	    // create and initialize the ORB
-			//	    ORB orb = ORB.init(args, null);
-			//	    
-			//	    // read in the 'stringified IOR' of the HomeHub
-			//      	    BufferedReader in = new BufferedReader(new FileReader("relay.ref"));
-			//      	    String stringified_ior = in.readLine();
-			//	    
-			//	    // get object reference from stringified IOR
-			//      	    org.omg.CORBA.Object server_ref = 		
-			//		orb.string_to_object(stringified_ior);
-			//	    
-			//	    final ClientAndServer.Relay relay = 
-			//		ClientAndServer.RelayHelper.narrow(server_ref);
-			//	    
+	public void switchOn(String camID) {
+		relay.switchOn(camID);
+		
+	}
+
+	public void switchOff(String camID) {
+		relay.switchOff(camID);
+		
+	}
+
+	public void sendPanicMessage(String camID) {
+		relay.sendPanicMessage(camID);
+		
+	}
+
+	public void setCamServer(String camID) {
+		relay.setCamConnection(camID);
+	}
+	
+	public void resetCamStatus(){
+	}
+}
+
+public class CamSensor extends JFrame {
+	private JPanel textpanel, buttonpanel;
+	private JScrollPane scrollpane;
+	private JTextArea textarea;
+	private JButton panicButton;
+	private JTextField statusField;
+	public static String camID;
+	private JButton btnOff, btnOn;
+	private ClientServant clientRef;
+	public static String homeHubName;
+
+	public CamSensor(String[] args, String camID2, String homeHubName2) {
+		
+		camID = camID2;
+		
+		homeHubName = homeHubName2;
+//		
+//		try {
+//			// Initialize the ORB
+//			System.out.println("Initializing the ORB");
+//			ORB orb = ORB.init(args, null);
+//
+//			// Get a reference to the Naming service
+//			org.omg.CORBA.Object nameServiceObj = 
+//					orb.resolve_initial_references ("NameService");
+//			if (nameServiceObj == null) {
+//				System.out.println("nameServiceObj = null");
+//				return;
+//			}
+//
+//			// Use NamingContextExt instead of NamingContext. This is 
+//			// part of the Interoperable naming Service.  
+//			NamingContextExt nameService = NamingContextExtHelper.narrow(nameServiceObj);
+//			if (nameService == null) {
+//				System.out.println("nameService = null");
+//				return;
+//			}
+//
+//			// resolve the Count object reference in the Naming service
+//			ClientAndServer.Relay relay = RelayHelper.narrow(nameService.resolve_str(camID));	
+		
+		try {
+		    // Initialize the ORB
+			
+			Properties prop = new Properties();
+			prop.put("org.omg.CORBA.ORBInitialPort","1050");
+			prop.put("org.omg.CORBA.ORBInitialPort","localhost");
+			
+		    ORB orb = ORB.init(args, prop);
+		    
+		    // get reference to rootpoa & activate the POAManager
+		    POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+		    rootpoa.the_POAManager().activate();
+		    
+		    // Create the Count servant object
+		    clientRef = new ClientServant(this, orb);
+
+		    // get object reference from the servant
+		    org.omg.CORBA.Object ref = rootpoa.servant_to_reference(clientRef);
+		    ClientAndServer.Client cref = ClientHelper.narrow(ref);
+		    
+		    // Get a reference to the Naming service
+		    org.omg.CORBA.Object nameServiceObj = 
+			orb.resolve_initial_references ("NameService");
+		    if (nameServiceObj == null) {
+			System.out.println("nameServiceObj = null");
+			return;
+		    }
+
+		    // Use NamingContextExt which is part of the Interoperable
+		    // Naming Service (INS) specification.
+		    NamingContextExt nameService = NamingContextExtHelper.narrow(nameServiceObj);
+		    if (nameService == null) {
+			System.out.println("nameService = null");
+			return;
+		    }
+		    
+		    // bind the Count object in the Naming service
+		    String name = camID;
+		    NameComponent[] countName = nameService.to_name(name);
+		    nameService.rebind(countName, cref);
 
 			// set up the GUI
 			textarea = new JTextArea(20,25);
@@ -98,7 +193,7 @@ public class CamSensor extends JFrame {
 					panicButton.setEnabled(true);
 					statusField.setEnabled(true);
 					btnOff.setEnabled(true);
-					relay.switchOn(camID);
+					clientRef.switchOn(camID);
 				}
 			});
 			btnOn.setBounds(61, 418, 117, 29);
@@ -111,7 +206,7 @@ public class CamSensor extends JFrame {
 					btnOff.setEnabled(false);
 					statusField.setText(null);
 					statusField.setEnabled(false);
-					relay.switchOff(camID);
+					clientRef.switchOff(camID);
 				}
 			});
 			btnOff.setBounds(217, 418, 117, 29);
@@ -120,7 +215,7 @@ public class CamSensor extends JFrame {
 				public void actionPerformed (ActionEvent evt) {
 
 					statusField.setText("Assistance Needed");	
-					relay.sendPanicMessage(camID);
+					clientRef.sendPanicMessage(camID);
 				}
 			});
 			getContentPane().add(buttonpanel, "South");
@@ -140,8 +235,14 @@ public class CamSensor extends JFrame {
 			e.printStackTrace(System.out);
 		}
 	}
-
-
+	
+	public void resetCameraStatus(){
+		statusField.setText(null);
+	}
+	
+	public void callConnectCamServer(){
+		clientRef.setCamServer(camID);
+	}
 
 	public static void main(String args[]) {
 		final String[] arguments = args;
@@ -152,9 +253,15 @@ public class CamSensor extends JFrame {
 				
 				camID = JOptionPane.showInputDialog(frame,"Camera Name");
 				
-				CamSensor cam = new CamSensor(arguments, camID);
+				JFrame frame1 = new JFrame();
+				
+				homeHubName = JOptionPane.showInputDialog(frame1,"Homehub Name");
+				
+				CamSensor cam = new CamSensor(arguments, camID, homeHubName);
 				
 				cam.setVisible(true);
+				
+				cam.callConnectCamServer();
 				
 			}
 		});

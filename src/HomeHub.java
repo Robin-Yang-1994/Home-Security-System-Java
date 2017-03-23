@@ -11,6 +11,7 @@ import javax.swing.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Properties;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
@@ -24,6 +25,7 @@ class RelayServant extends RelayPOA {
 	private long timeDiff = 0; 
 	private String messageStatus;
 	private String camID;
+	private ClientAndServer.Relay relay2;
 
 	public RelayServant(HomeHub parentGUI, ORB orb_val) {
 		// store reference to parent GUI
@@ -51,6 +53,9 @@ class RelayServant extends RelayPOA {
 		try {
 			// Initialize the ORB
 			System.out.println("Initializing the ORB");
+			Properties prop = new Properties();
+			prop.put("org.omg.CORBA.ORBInitialPort","1050");
+			prop.put("org.omg.CORBA.ORBInitialPort","localhost");
 
 			// Get a reference to the Naming service
 			org.omg.CORBA.Object nameServiceObj = 
@@ -127,10 +132,50 @@ class RelayServant extends RelayPOA {
 		return "Notified Server";
 	}
 	
-	public void resetCamera(){
-		
+	public void setConnection(String name){
+		server.connection(name);
 	}
+	
+	public String setCamConnection(String name){
+		try {
+			// Initialize the ORB
+			System.out.println("Initializing the ORB");
+			
+			Properties prop = new Properties();
+			prop.put("org.omg.CORBA.ORBInitialPort","1050");
+			prop.put("org.omg.CORBA.ORBInitialPort","localhost");
+			
+			//ORB orb = ORB.init(args, null);
 
+			// Get a reference to the Naming service
+			org.omg.CORBA.Object nameServiceObj = 
+					orb.resolve_initial_references ("NameService");
+			if (nameServiceObj == null) {
+				System.out.println("nameServiceObj = null");
+				
+			}
+
+			// Use NamingContextExt instead of NamingContext. This is 
+			// part of the Interoperable naming Service.  
+			NamingContextExt nameService = NamingContextExtHelper.narrow(nameServiceObj);
+			if (nameService == null) {
+				System.out.println("nameService = null");
+				
+			}
+			
+			// resolve the Count object reference in the Naming service
+			relay2 = RelayHelper.narrow(nameService.resolve_str(name));	
+			
+		} catch (Exception e) {
+			System.out.println("ERROR : " + e) ;
+			e.printStackTrace(System.out);
+		}
+		return relay2.toString();
+	}
+	
+	public void resetCamera(){
+		//relay2.resetCamStatus();
+	}
 
 }
 
@@ -147,7 +192,11 @@ public class HomeHub extends JFrame {
 		
 		try {
 		    // Initialize the ORB
-		    ORB orb = ORB.init(args, null);
+			Properties prop = new Properties();
+			prop.put("org.omg.CORBA.ORBInitialPort","1050");
+			prop.put("org.omg.CORBA.ORBInitialPort","localhost");
+			
+		    ORB orb = ORB.init(args, prop);
 		    
 		    // get reference to rootpoa & activate the POAManager
 		    POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
@@ -230,6 +279,10 @@ public class HomeHub extends JFrame {
 	public void addMessage(String message){
 		textarea.append(message);
 	}
+	
+	public void callConnect(){
+		relayRef.setConnection(homeHubName);
+	}
 
 
 	public static void main(String args[]) {
@@ -244,6 +297,10 @@ public class HomeHub extends JFrame {
 				HomeHub hub = new HomeHub(arguments, homeHubName);
 				
 				hub.setVisible(true);
+				
+				hub.setTitle(homeHubName);
+				
+				hub.callConnect();
 			}
 		});
 	}
