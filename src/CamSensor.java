@@ -1,5 +1,6 @@
 import ClientAndServer.*;
 import ClientAndServer.Image;
+import java.util.Date;
 
 import org.omg.CORBA.*;
 import org.omg.CosNaming.NameComponent;
@@ -8,6 +9,8 @@ import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.PortableServer.*;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 import javax.swing.*;
@@ -81,12 +84,16 @@ class ClientServant extends ClientPOA{
 	}
 
 	public Image currentImage() {
-//		Image i = new Image();
-//		i.time = 
-//		i.date =
-//		i.status = 
-//		return i;
-		return null;
+		Image i = new Image();
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date format = new Date();
+		i.time = format.getHours();
+		i.date = format.getDate();
+		i.status = parent.statusField.getText();
+		
+		System.out.println(i.date + i.time + i.status);
+		return i;
 	}
 
 	public void sendOkayMessage(String camID) {
@@ -110,6 +117,7 @@ public class CamSensor extends JFrame {
 	private JButton btnOff, btnOn;
 	private ClientServant clientRef;
 	public static String homeHubName;
+	private JButton btnSendImage;
 
 	public CamSensor(String[] args, String camID2, String homeHubName2) {
 		
@@ -172,7 +180,7 @@ public class CamSensor extends JFrame {
 
 			getContentPane().add(textpanel, "Center");
 			panicButton = new JButton("Send Panic");
-			panicButton.setBounds(46, 320, 132, 25);
+			panicButton.setBounds(21, 320, 117, 25);
 			textpanel.add(panicButton);
 
 			statusField = new JTextField();
@@ -217,8 +225,17 @@ public class CamSensor extends JFrame {
 					clientRef.sendOkayMessage(camID);
 				}
 			});
-			okayButton.setBounds(222, 318, 117, 29);
+			okayButton.setBounds(139, 318, 117, 29);
 			textpanel.add(okayButton);
+			
+			btnSendImage = new JButton("Send Image");
+			btnSendImage.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					clientRef.currentImage();
+				}
+			});
+			btnSendImage.setBounds(254, 320, 117, 29);
+			textpanel.add(btnSendImage);
 			panicButton.addActionListener (new ActionListener() {
 				public void actionPerformed (ActionEvent evt) {
 
