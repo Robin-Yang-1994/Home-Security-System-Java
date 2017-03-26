@@ -1,4 +1,5 @@
 import ClientAndServer.*;
+import ClientAndServer.Image;
 
 import org.omg.CORBA.*;
 import org.omg.CosNaming.NameComponent;
@@ -77,7 +78,25 @@ class ClientServant extends ClientPOA{
 	
 	public void resetCamStatus(){
 		parent.statusField.setText("");
-		System.out.println("working!!!");
+	}
+
+	public Image currentImage() {
+//		Image i = new Image();
+//		i.time = 
+//		i.date =
+//		i.status = 
+//		return i;
+		return null;
+	}
+
+	public void sendOkayMessage(String camID) {
+		relay.sendOkayMessage(camID);
+	}
+
+	@Override
+	public void getCameraStatus(String camID) {
+		String status = parent.statusField.getText();
+		relay.sendCameraStatus(camID,status);
 	}
 }
 
@@ -97,30 +116,6 @@ public class CamSensor extends JFrame {
 		camID = camID2;
 		
 		homeHubName = homeHubName2;
-//		
-//		try {
-//			// Initialize the ORB
-//			System.out.println("Initializing the ORB");
-//			ORB orb = ORB.init(args, null);
-//
-//			// Get a reference to the Naming service
-//			org.omg.CORBA.Object nameServiceObj = 
-//					orb.resolve_initial_references ("NameService");
-//			if (nameServiceObj == null) {
-//				System.out.println("nameServiceObj = null");
-//				return;
-//			}
-//
-//			// Use NamingContextExt instead of NamingContext. This is 
-//			// part of the Interoperable naming Service.  
-//			NamingContextExt nameService = NamingContextExtHelper.narrow(nameServiceObj);
-//			if (nameService == null) {
-//				System.out.println("nameService = null");
-//				return;
-//			}
-//
-//			// resolve the Count object reference in the Naming service
-//			ClientAndServer.Relay relay = RelayHelper.narrow(nameService.resolve_str(camID));	
 		
 		try {
 		    // Initialize the ORB
@@ -177,7 +172,7 @@ public class CamSensor extends JFrame {
 
 			getContentPane().add(textpanel, "Center");
 			panicButton = new JButton("Send Panic");
-			panicButton.setBounds(132, 320, 132, 25);
+			panicButton.setBounds(46, 320, 132, 25);
 			textpanel.add(panicButton);
 
 			statusField = new JTextField();
@@ -204,6 +199,7 @@ public class CamSensor extends JFrame {
 			btnOff = new JButton("Off");
 			btnOff.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					
 					panicButton.setEnabled(false);
 					btnOff.setEnabled(false);
 					statusField.setText(null);
@@ -213,6 +209,16 @@ public class CamSensor extends JFrame {
 			});
 			btnOff.setBounds(217, 418, 117, 29);
 			textpanel.add(btnOff);
+			
+			JButton okayButton = new JButton("Send Okay");
+			okayButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					statusField.setText("Okay");	
+					clientRef.sendOkayMessage(camID);
+				}
+			});
+			okayButton.setBounds(222, 318, 117, 29);
+			textpanel.add(okayButton);
 			panicButton.addActionListener (new ActionListener() {
 				public void actionPerformed (ActionEvent evt) {
 
@@ -257,7 +263,7 @@ public class CamSensor extends JFrame {
 				
 				JFrame frame1 = new JFrame();
 				
-				homeHubName = JOptionPane.showInputDialog(frame1,"Homehub Name");
+				homeHubName = JOptionPane.showInputDialog(frame1,"Connect to Homehub");
 				
 				CamSensor cam = new CamSensor(arguments, camID, homeHubName);
 				

@@ -10,6 +10,7 @@ import java.io.*;
 import javax.swing.*;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 import java.sql.Timestamp;
@@ -26,6 +27,8 @@ class RelayServant extends RelayPOA {
 	private String messageStatus;
 	private String camID;
 	private ClientAndServer.Client relay2;
+	private ArrayList <HomeHubObject> list = new  ArrayList<HomeHubObject>();
+
 
 	public RelayServant(HomeHub parentGUI, ORB orb_val) {
 		// store reference to parent GUI
@@ -33,22 +36,6 @@ class RelayServant extends RelayPOA {
 
 		// store reference to ORB
 		orb = orb_val;
-
-
-		// look up the server
-//		try {
-//			// read in the 'stringified IOR'
-//			BufferedReader in = new BufferedReader(new FileReader("server.ref"));
-//			String stringified_ior = in.readLine();
-//
-//			// get object reference from stringified IOR
-//			org.omg.CORBA.Object server_ref = 		
-//					orb.string_to_object(stringified_ior);
-//			server = ClientAndServer.HelloWorldHelper.narrow(server_ref);
-//		} catch (Exception e) {
-//			System.out.println("ERROR : " + e) ;
-//			e.printStackTrace(System.out);
-//		}
 		
 		try {
 			// Initialize the ORB
@@ -76,7 +63,6 @@ class RelayServant extends RelayPOA {
 			// resolve the Count object reference in the Naming service
 			String name = "Office";
 			server = HelloWorldHelper.narrow(nameService.resolve_str(name));
-			
 			} catch (Exception e) {
 			System.out.println("ERROR : " + e) ;
 			e.printStackTrace(System.out);
@@ -105,6 +91,15 @@ class RelayServant extends RelayPOA {
 				+ "   Now forwarding to client..\n\n");
 
 		return messageFromServer;
+	}
+	
+	public void sendOkayMessage(String camID){
+		
+		String homeHubName = parent.getTitle();
+		
+		parent.addMessage("Camera " + camID + " in " + homeHubName + " is okay \n");
+
+		server.showOkayMessage(camID, homeHubName);
 	}
 
 	public String sendPanicMessage(String camID){
@@ -179,6 +174,29 @@ class RelayServant extends RelayPOA {
 		
 	}
 
+	@Override
+	public HomeHubObject[] hHist() {
+		HomeHubObject[] lists = new HomeHubObject[list.size()];
+		return lists;
+	}
+
+	@Override
+	public void addHomeHub(String homeHubName) {	
+	}
+
+	@Override
+	public void getCameraStatus(String camID) {
+		setConnection(camID);
+		relay2.getCameraStatus(camID);
+	}
+
+	public void sendCameraStatus(String camID, String status) {
+		
+		parent.addMessage("Camera " + camID + " status = " + status + "\n");
+
+		server.showCameraStatus(camID, status);
+	}
+
 }
 
 public class HomeHub extends JFrame {
@@ -186,7 +204,7 @@ public class HomeHub extends JFrame {
 	private JScrollPane scrollpane;
 	private JTextArea textarea;
 	private RelayServant relayRef;
-	private static String homeHubName;
+	public static String homeHubName;
 
 	public HomeHub(String[] args, String homeHubName2) {
 		
@@ -232,28 +250,7 @@ public class HomeHub extends JFrame {
 		    NameComponent[] countName = nameService.to_name(name);
 		    nameService.rebind(countName, cref);
 		    
-		    //  wait for invocations from clients
-		 
-//		try {
-//			// create and initialize the ORB
-//			ORB orb = ORB.init(args, null);
-//
-//			// get reference to rootpoa & activate the POAManager
-//			POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-//			rootpoa.the_POAManager().activate();
-//
-//			// create servant and register it with the ORB
-//			RelayServant relayRef = new RelayServant(this, orb);
-//
-//			// Get the 'stringified IOR'
-//			org.omg.CORBA.Object ref = rootpoa.servant_to_reference(relayRef);
-//			String stringified_ior = orb.object_to_string(ref);
-//
-//			// Save IOR to file
-//			BufferedWriter out = new BufferedWriter(new FileWriter("relay.ref"));
-//			out.write(stringified_ior);
-//			out.close();
-
+		    //  wait for invocations from client
 
 			// set up the GUI
 			textarea = new JTextArea(20,25);

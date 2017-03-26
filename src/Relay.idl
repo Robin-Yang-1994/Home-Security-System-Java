@@ -3,24 +3,44 @@
 
 module ClientAndServer {
 	
+	struct Image{
+	long time;
+	long date;
+	string status;
+	};
+	
 	interface Client{
 	void switchOn(in string camID);
 	void switchOff(in string camID);
 	void sendPanicMessage(in string camID);
+	void sendOkayMessage(in string camID);
 	void setCamServer(in string camID);
 	void resetCamStatus();
+	Image currentImage();
+	void getCameraStatus(in string camID);
+	};
+
+	struct HomeHubObject{
+	string camID;
+	string name;
 	};
 	
+	typedef sequence <HomeHubObject> homeHubList;
 	
     interface Relay {
+    readonly attribute homeHubList hHist; 
     string switchOn(in string camID);
     string switchOff(in string camID);
     string fetch_message();
 	string sendPanicMessage(in string camID);
+	void sendOkayMessage(in string camID);
 	string notifyServer(in string camID);
 	void setConnection(in string name);
 	void resetCamera(in string c);
 	string setCamConnection(in string name);
+	void addHomeHub(in string homeHubName);
+	void getCameraStatus(in string camID);
+	void sendCameraStatus(in string camID, in string status);
     };
 
     interface HelloWorld {
@@ -30,6 +50,9 @@ module ClientAndServer {
 	string switchOff(in string camID);
 	void showCamStatus(in string messageStatus);
 	string connection(in string name);
-	void resetSensor(in string CamID);
+	void resetSensor(in string CamID, in string homeHubName);
+	void showOkayMessage(in string camID, in string homeHubName);
+	void getStatus(in string camID, in string homeHubName);
+	void showCameraStatus(in string camID, in string status);
     };			
 };

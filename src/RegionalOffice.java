@@ -31,6 +31,10 @@ class HelloServant extends HelloWorldPOA {
 
 		return "Hello World!!";
 	}
+	
+	public void showOkayMessage(String camID, String homeHubName){
+		parent.addMessage("Camera " + camID + " in " + homeHubName + " is okay \n");
+	}
 
 	public String panicServer(String camID){
 
@@ -90,11 +94,22 @@ class HelloServant extends HelloWorldPOA {
 		return relay2.toString();
 	}
 	
-	public void resetSensor(String CamID){
+	public void resetSensor(String camID, String homeHubName){ // only deletes one sensor
 		connection(parent.textFieldHub.getText());
-		relay2.resetCamera(CamID);
-		parent.addMessage("Alarm " + CamID + " has been resetted \n");
+		relay2.resetCamera(camID);
+		parent.addMessage("Alarm " + camID + " in " + homeHubName +" has been resetted \n");
 		
+	}
+
+	public void getStatus(String camID, String homeHubName) {
+		connection(parent.textFieldHub.getText());
+		relay2.getCameraStatus(camID);
+		parent.addMessage("Calling for " + camID + " status \n");
+		
+	}
+
+	public void showCameraStatus(String camID, String status) {
+		parent.addMessage("Camera " + camID + " status = " + status + "\n");
 	}
 }
 
@@ -109,25 +124,6 @@ public class RegionalOffice extends JFrame {
 	public static JTextField textFieldCam;
 
 	public RegionalOffice(String[] args){
-//		try {
-//			// create and initialize the ORB
-//			ORB orb = ORB.init(args, null);
-//
-//			// get reference to rootpoa & activate the POAManager
-//			POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-//			rootpoa.the_POAManager().activate();
-//
-//			// create servant and register it with the ORB
-//			HelloServant helloRef = new HelloServant(this);
-//
-//			// get the 'stringified IOR'
-//			org.omg.CORBA.Object ref = rootpoa.servant_to_reference(helloRef);
-//			String stringified_ior = orb.object_to_string(ref);
-//
-//			// Save IOR to file
-//			BufferedWriter out = new BufferedWriter(new FileWriter("server.ref"));
-//			out.write(stringified_ior);
-//			out.close();
 		
 		try {
 		    // Initialize the ORB
@@ -183,21 +179,38 @@ public class RegionalOffice extends JFrame {
 			btnReset = new JButton("Reset");
 			btnReset.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					helloRef.resetSensor(textFieldCam.getText());
+					helloRef.resetSensor(textFieldCam.getText(), textFieldHub.getText());
 				}
 			});
-			btnReset.setBounds(235, 357, 117, 29);
+			btnReset.setBounds(234, 357, 117, 29);
 			panel.add(btnReset);
 			
 			textFieldHub = new JTextField();
-			textFieldHub.setBounds(219, 405, 130, 26);
+			textFieldHub.setBounds(48, 357, 130, 26);
 			panel.add(textFieldHub);
 			textFieldHub.setColumns(10);
 			
 			textFieldCam = new JTextField();
-			textFieldCam.setBounds(37, 405, 130, 26);
+			textFieldCam.setBounds(48, 416, 130, 26);
 			panel.add(textFieldCam);
 			textFieldCam.setColumns(10);
+			
+			JLabel lblHomehubName = new JLabel("HomeHub Name:");
+			lblHomehubName.setBounds(48, 341, 107, 16);
+			panel.add(lblHomehubName);
+			
+			JLabel lblCameraName = new JLabel("Camera Name:");
+			lblCameraName.setBounds(48, 396, 107, 16);
+			panel.add(lblCameraName);
+			
+			JButton btnGetStatus = new JButton("Get Status");
+			btnGetStatus.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					helloRef.getStatus(textFieldCam.getText(), textFieldHub.getText());
+				}
+			});
+			btnGetStatus.setBounds(235, 416, 117, 29);
+			panel.add(btnGetStatus);
 
 			setSize(400, 500);
 			setTitle("Regional Office Server");
