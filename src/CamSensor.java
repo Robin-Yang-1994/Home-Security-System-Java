@@ -86,13 +86,16 @@ class ClientServant extends ClientPOA{
 	public Image currentImage() {
 		Image i = new Image();
 		
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		Date format = new Date();
-		i.time = format.getHours();
-		i.date = format.getDate();
+		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+		DateFormat hourFormat = new SimpleDateFormat("HHmmss");
+		Date date = new Date();
+		i.time = Integer.parseInt(hourFormat.format(date));
+		i.date = Integer.parseInt(dateFormat.format(date));
 		i.status = parent.statusField.getText();
 		
-		System.out.println(i.date + i.time + i.status);
+		//i.set(Integer.parseInt(date1[2]), Integer.parseInt(date1[1]), Integer.parseInt(date1[0]), Integer.parseInt(time1[0]), Integer.parseInt(time2[0]));
+		
+		System.out.println(i.date + "-" + i.time + "-" + i.status);
 		return i;
 	}
 
