@@ -127,6 +127,14 @@ class RelayServant extends RelayPOA {
 		return "Notified Server";
 	}
 	
+	public void sendSensorPanicMessage(String sensorID){
+		Timestamp panicTime = new Timestamp(System.currentTimeMillis());
+		parent.addMessage("Sensor " + sensorID +" has been alerted \n");
+		messageStatus = "Assistence needed " + panicTime + "\n";		
+		server.sensorPanicServer(sensorID);
+		server.showSensorStatus(messageStatus);
+	}
+	
 	public void setConnection(String name){
 		server.connection(name);
 	}

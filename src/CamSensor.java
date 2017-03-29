@@ -22,6 +22,7 @@ class ClientServant extends ClientPOA{
 	private ClientAndServer.Relay relay;
 	private ORB orb;
 	private CamSensor parent;
+	private JFrame imageFrame;
 	
 	public ClientServant(CamSensor parentGUI, ORB orb_val){
 		parent = parentGUI;
@@ -86,16 +87,21 @@ class ClientServant extends ClientPOA{
 	public Image currentImage() {
 		Image i = new Image();
 		
-		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-		DateFormat hourFormat = new SimpleDateFormat("HHmmss");
+		DateFormat year = new SimpleDateFormat("yyyy");
+		DateFormat month = new SimpleDateFormat("MM");
+		DateFormat day = new SimpleDateFormat("dd");
+		DateFormat hour = new SimpleDateFormat("HH");
+		DateFormat minute = new SimpleDateFormat("mm");
+		DateFormat second = new SimpleDateFormat("ss");
 		Date date = new Date();
-		i.time = Integer.parseInt(hourFormat.format(date));
-		i.date = Integer.parseInt(dateFormat.format(date));
+		i.date = (year.format(date) + "/" + month.format(date) + "/" + day.format(date));
+		i.time = (hour.format(date) + ":" + minute.format(date) + ":" + second.format(date));
 		i.status = parent.statusField.getText();
 		
-		//i.set(Integer.parseInt(date1[2]), Integer.parseInt(date1[1]), Integer.parseInt(date1[0]), Integer.parseInt(time1[0]), Integer.parseInt(time2[0]));
+		//System.out.println(i.date + " " + i.time + " Status is " + i.status);
 		
-		System.out.println(i.date + "-" + i.time + "-" + i.status);
+		JOptionPane.showMessageDialog(imageFrame,i.date + " " + i.time + " Status is " + i.status);
+		
 		return i;
 	}
 

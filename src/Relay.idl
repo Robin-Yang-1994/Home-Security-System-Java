@@ -4,8 +4,8 @@
 module ClientAndServer {
 	
 	struct Image{
-	long time;
-	long date;
+	string time;
+	string  date;
 	string status;
 	};
 	
@@ -18,6 +18,10 @@ module ClientAndServer {
 	void resetCamStatus();
 	Image currentImage();
 	void getCameraStatus(in string camID);
+	};
+	
+	interface ClientSensor{
+	void sendSensorPanicMessage(in string sensorID);
 	};
 
 	struct HomeHubObject{
@@ -32,6 +36,7 @@ module ClientAndServer {
     string switchOn(in string camID);
     string switchOff(in string camID);
     string fetch_message();
+    void sendSensorPanicMessage(in string sensorID);
 	string sendPanicMessage(in string camID);
 	void sendOkayMessage(in string camID);
 	string notifyServer(in string camID);
@@ -46,9 +51,11 @@ module ClientAndServer {
     interface HelloWorld {
 	string hello_world();
 	string panicServer(in string camID);
+	void sensorPanicServer(in string sensorID);
 	string switchOn(in string camID);
 	string switchOff(in string camID);
 	void showCamStatus(in string messageStatus);
+	void showSensorStatus(in string messageStatus);
 	string connection(in string name);
 	void resetSensor(in string CamID, in string homeHubName);
 	void showOkayMessage(in string camID, in string homeHubName);

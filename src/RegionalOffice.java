@@ -111,6 +111,15 @@ class HelloServant extends HelloWorldPOA {
 	public void showCameraStatus(String camID, String status) {
 		parent.addMessage("Camera " + camID + " status = " + status + "\n");
 	}
+
+	public void sensorPanicServer(String sensorID) {
+		parent.addMessage("Sensor " + sensorID +" has been alerted \n"); 
+	}
+
+	
+	public void showSensorStatus(String messageStatus) {
+		parent.addMessage(messageStatus);
+	}
 }
 
 
