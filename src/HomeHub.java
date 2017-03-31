@@ -27,7 +27,6 @@ class RelayServant extends RelayPOA {
 	private String messageStatus;
 	private String camID;
 	private ClientAndServer.Client relay2;
-	private ArrayList <HomeHubObject> list = new  ArrayList<HomeHubObject>();
 
 
 	public RelayServant(HomeHub parentGUI, ORB orb_val) {
@@ -127,11 +126,11 @@ class RelayServant extends RelayPOA {
 		return "Notified Server";
 	}
 	
-	public void sendSensorPanicMessage(String sensorID){
+	public void sendSensorPanicMessage(String sensorID, String roomName){
 		Timestamp panicTime = new Timestamp(System.currentTimeMillis());
-		parent.addMessage("Sensor " + sensorID +" has been alerted \n");
+		parent.addMessage("Sensor " + sensorID +" in "+ roomName +" has been alerted \n");
 		messageStatus = "Assistence needed " + panicTime + "\n";		
-		server.sensorPanicServer(sensorID);
+		server.sensorPanicServer(sensorID, roomName);
 		server.showSensorStatus(messageStatus);
 	}
 	
@@ -183,16 +182,6 @@ class RelayServant extends RelayPOA {
 	}
 
 	@Override
-	public HomeHubObject[] hHist() {
-		HomeHubObject[] lists = new HomeHubObject[list.size()];
-		return lists;
-	}
-
-	@Override
-	public void addHomeHub(String homeHubName) {	
-	}
-
-	@Override
 	public void getCameraStatus(String camID) {
 		setConnection(camID);
 		relay2.getCameraStatus(camID);
@@ -204,7 +193,6 @@ class RelayServant extends RelayPOA {
 
 		server.showCameraStatus(camID, status);
 	}
-
 }
 
 public class HomeHub extends JFrame {

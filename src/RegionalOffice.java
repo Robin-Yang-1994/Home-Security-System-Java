@@ -96,6 +96,7 @@ class HelloServant extends HelloWorldPOA {
 	
 	public void resetSensor(String camID, String homeHubName){ // only deletes one sensor
 		connection(parent.textFieldHub.getText());
+		camID = parent.textFieldCam.getText();
 		relay2.resetCamera(camID);
 		parent.addMessage("Alarm " + camID + " in " + homeHubName +" has been resetted \n");
 		
@@ -107,19 +108,26 @@ class HelloServant extends HelloWorldPOA {
 		parent.addMessage("Calling for " + camID + " status \n");
 		
 	}
+	
+	
+	public void showSensorStatus(String messageStatus) {
+		parent.addMessage(messageStatus);
+	}
 
 	public void showCameraStatus(String camID, String status) {
 		parent.addMessage("Camera " + camID + " status = " + status + "\n");
 	}
 
-	public void sensorPanicServer(String sensorID) {
-		parent.addMessage("Sensor " + sensorID +" has been alerted \n"); 
+	public void sensorPanicServer(String sensorID, String roomName) {
+		parent.addMessage("Sensor " + sensorID +" in "+ roomName +" has been alerted \n");
 	}
 
-	
-	public void showSensorStatus(String messageStatus) {
-		parent.addMessage(messageStatus);
+	@Override
+	public AlarmLogs[] list() {
+		
+		return null;
 	}
+
 }
 
 

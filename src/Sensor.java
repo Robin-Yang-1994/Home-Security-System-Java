@@ -51,8 +51,8 @@ class ClientSensorServant extends ClientSensorPOA{
 		
 	}
 
-	public void sendSensorPanicMessage(String sensorID) {
-		relay.sendSensorPanicMessage(sensorID);
+	public void sendSensorPanicMessage(String sensorID, String roomName) {
+		relay.sendSensorPanicMessage(sensorID, roomName);
 		
 	}
 
@@ -64,13 +64,16 @@ public class Sensor extends JFrame {
 	public static String sensorID;
 	private ClientSensorServant clientRef;
 	public static String homeHubName;
+	public static String roomName;
 	public static JTextField statusField;
 
-	public Sensor(String[] args, String sensorID2, String homeHubName2) {
+	public Sensor(String[] args, String sensorID2, String homeHubName2, String roomName2) {
 		
 		sensorID = sensorID2;
 		
 		homeHubName = homeHubName2;
+		
+		roomName = roomName2;
 		
 		try {
 		    // Initialize the ORB
@@ -121,7 +124,7 @@ public class Sensor extends JFrame {
 			textpanel.add(panicButton);
 			panicButton.addActionListener (new ActionListener() {
 				public void actionPerformed (ActionEvent evt) {
-					clientRef.sendSensorPanicMessage(sensorID);
+					clientRef.sendSensorPanicMessage(sensorID, roomName);
 				}
 			});
 
@@ -154,7 +157,11 @@ public class Sensor extends JFrame {
 				
 				homeHubName = JOptionPane.showInputDialog(frame1,"Connect to Homehub");
 				
-				Sensor sensor = new Sensor(arguments, sensorID, homeHubName);
+				JFrame frame2 = new JFrame();
+				
+				roomName = JOptionPane.showInputDialog(frame2,"Room Name");
+				
+				Sensor sensor = new Sensor(arguments, sensorID, homeHubName, roomName);
 				
 				sensor.setVisible(true);
 				

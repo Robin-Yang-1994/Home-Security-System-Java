@@ -9,6 +9,15 @@ module ClientAndServer {
 	string status;
 	};
 	
+	struct AlarmLogs{
+	string name;
+	string area;
+	string homehub;
+	string timedex;
+	string sent;
+	};
+	
+	typedef sequence<AlarmLogs> alarmList;
 	interface Client{
 	void switchOn(in string camID);
 	void switchOff(in string camID);
@@ -21,37 +30,30 @@ module ClientAndServer {
 	};
 	
 	interface ClientSensor{
-	void sendSensorPanicMessage(in string sensorID);
+	void sendSensorPanicMessage(in string sensorID, in string roomName);
 	};
 
-	struct HomeHubObject{
-	string camID;
-	string name;
-	};
-	
-	typedef sequence <HomeHubObject> homeHubList;
 	
     interface Relay {
-    readonly attribute homeHubList hHist; 
     string switchOn(in string camID);
     string switchOff(in string camID);
     string fetch_message();
-    void sendSensorPanicMessage(in string sensorID);
+    void sendSensorPanicMessage(in string sensorID, in string roomName);
 	string sendPanicMessage(in string camID);
 	void sendOkayMessage(in string camID);
 	string notifyServer(in string camID);
 	void setConnection(in string name);
 	void resetCamera(in string c);
 	string setCamConnection(in string name);
-	void addHomeHub(in string homeHubName);
 	void getCameraStatus(in string camID);
 	void sendCameraStatus(in string camID, in string status);
     };
 
     interface HelloWorld {
+    readonly attribute alarmList list;
 	string hello_world();
 	string panicServer(in string camID);
-	void sensorPanicServer(in string sensorID);
+	void sensorPanicServer(in string sensorID, in string roomName);
 	string switchOn(in string camID);
 	string switchOff(in string camID);
 	void showCamStatus(in string messageStatus);

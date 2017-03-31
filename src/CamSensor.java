@@ -126,13 +126,17 @@ public class CamSensor extends JFrame {
 	private JButton btnOff, btnOn;
 	private ClientServant clientRef;
 	public static String homeHubName;
+	public static String roomName;
 	private JButton btnSendImage;
+	private JButton okayButton;
 
-	public CamSensor(String[] args, String camID2, String homeHubName2) {
+	public CamSensor(String[] args, String camID2, String homeHubName2, String roomName2) {
 		
 		camID = camID2;
 		
 		homeHubName = homeHubName2;
+		
+		roomName = roomName2;
 		
 		try {
 		    // Initialize the ORB
@@ -200,32 +204,6 @@ public class CamSensor extends JFrame {
 			JLabel lblCurrentStatus = new JLabel("Current Status:");
 			lblCurrentStatus.setBounds(61, 380, 132, 15);
 			textpanel.add(lblCurrentStatus);
-
-			btnOn = new JButton("On");
-			btnOn.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					panicButton.setEnabled(true);
-					statusField.setEnabled(true);
-					btnOff.setEnabled(true);
-					clientRef.switchOn(camID);
-				}
-			});
-			btnOn.setBounds(61, 418, 117, 29);
-			textpanel.add(btnOn);
-
-			btnOff = new JButton("Off");
-			btnOff.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					
-					panicButton.setEnabled(false);
-					btnOff.setEnabled(false);
-					statusField.setText(null);
-					statusField.setEnabled(false);
-					clientRef.switchOff(camID);
-				}
-			});
-			btnOff.setBounds(217, 418, 117, 29);
-			textpanel.add(btnOff);
 			
 			JButton okayButton = new JButton("Send Okay");
 			okayButton.addActionListener(new ActionListener() {
@@ -236,6 +214,37 @@ public class CamSensor extends JFrame {
 			});
 			okayButton.setBounds(139, 318, 117, 29);
 			textpanel.add(okayButton);
+			
+			btnOn = new JButton("On");
+			btnOn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					okayButton.setEnabled(true);
+					btnSendImage.setEnabled(true);
+					panicButton.setEnabled(true);
+					statusField.setEnabled(true);
+					btnOff.setEnabled(true);
+					
+					clientRef.switchOn(camID);
+				}
+			});
+			btnOn.setBounds(61, 418, 117, 29);
+			textpanel.add(btnOn);
+			
+			btnOff = new JButton("Off");
+			btnOff.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					btnSendImage.setEnabled(false);
+					okayButton.setEnabled(false);
+					panicButton.setEnabled(false);
+					btnOff.setEnabled(false);
+					statusField.setText(null);
+					statusField.setEnabled(false);
+					
+					clientRef.switchOff(camID);
+				}
+			});
+			btnOff.setBounds(217, 418, 117, 29);
+			textpanel.add(btnOff);
 			
 			btnSendImage = new JButton("Send Image");
 			btnSendImage.addActionListener(new ActionListener() {
@@ -291,7 +300,11 @@ public class CamSensor extends JFrame {
 				
 				homeHubName = JOptionPane.showInputDialog(frame1,"Connect to Homehub");
 				
-				CamSensor cam = new CamSensor(arguments, camID, homeHubName);
+				JFrame frame2 = new JFrame();
+				
+				roomName = JOptionPane.showInputDialog(frame2,"Room Name");
+				
+				CamSensor cam = new CamSensor(arguments, camID, homeHubName, roomName);
 				
 				cam.setVisible(true);
 				
