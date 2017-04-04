@@ -19,7 +19,7 @@ import java.awt.event.*;
 
 class ClientCameraServant extends ClientCameraPOA{
 	
-	private ClientAndServer.ClientServerHomeHub relay;
+	private ClientAndServer.ClientServerHomeHub homehub;
 	private ORB orb;
 	private CamSensor parent;
 	private JFrame imageFrame;
@@ -32,7 +32,7 @@ class ClientCameraServant extends ClientCameraPOA{
 			System.out.println("Initializing the ORB");
 			//ORB orb = ORB.init(args, null);
 			Properties prop = new Properties();
-			prop.put("org.omg.CORBA.ORBInitialPort","1050");
+			prop.put("org.omg.CORBA.ORBInitialPort","1050"); // defining network ports and host name
 			prop.put("org.omg.CORBA.ORBInitialPort","localhost");
 
 			// Get a reference to the Naming service
@@ -50,9 +50,9 @@ class ClientCameraServant extends ClientCameraPOA{
 				System.out.println("nameService = null");
 				return;
 			}
-			String name = parent.homeHubName;
+			String name = parent.homeHubName; 
 			// resolve the Count object reference in the Naming service
-			relay = ClientServerHomeHubHelper.narrow(nameService.resolve_str(name));
+			homehub = ClientServerHomeHubHelper.narrow(nameService.resolve_str(name)); // home hub server
 			
 		} catch (Exception e) {
 			System.out.println("ERROR : " + e) ;
@@ -61,33 +61,34 @@ class ClientCameraServant extends ClientCameraPOA{
 		
 	}
 
-	public void switchOn(String camID) {
-		relay.switchOn(camID);
+	public void switchOn(String camID) { // calls switch on method in home hub 
+		homehub.switchOn(camID);
 		
 	}
 
-	public void switchOff(String camID) {
-		relay.switchOff(camID);
+	public void switchOff(String camID) { // calls switch off method in home hub 
+		homehub.switchOff(camID);
 		
 	}
 
-	public void sendPanicMessage(String camID) {
-		relay.sendPanicMessage(camID);
+	public void sendPanicMessage(String camID) { // calls send panic message method in home hub
+		homehub.sendPanicMessage(camID);
 		
 	}
 
-	public void setCamServer(String camID) {
-		relay.setCamConnection(camID);
+	public void setCamServer(String camID) { // calling method in home hub to make camera become server to home hub
+		homehub.setCamConnection(camID);
 	}
 	
-	public void resetCamStatus(){
+	public void resetCamStatus(){  // set status field to empty 
 		parent.statusField.setText("");
 	}
 
-	public Image currentImage() {
+	public Image currentImage() { // strut format in using images 
+		
 		Image i = new Image();
 		
-		DateFormat year = new SimpleDateFormat("yyyy");
+		DateFormat year = new SimpleDateFormat("yyyy"); // breaking down date format into individual forms
 		DateFormat month = new SimpleDateFormat("MM");
 		DateFormat day = new SimpleDateFormat("dd");
 		DateFormat hour = new SimpleDateFormat("HH");
@@ -98,21 +99,19 @@ class ClientCameraServant extends ClientCameraPOA{
 		i.time = (hour.format(date) + ":" + minute.format(date) + ":" + second.format(date));
 		i.status = parent.statusField.getText();
 		
-		//System.out.println(i.date + " " + i.time + " Status is " + i.status);
-		
 		JOptionPane.showMessageDialog(imageFrame,i.date + " " + i.time + " Status is " + i.status);
-		
+		// display date time and seconds in pop up j option pane
 		return i;
 	}
 
-	public void sendOkayMessage(String camID) {
-		relay.sendOkayMessage(camID);
+	public void sendOkayMessage(String camID) { // calling send okay message method in home hub class
+		homehub.sendOkayMessage(camID);
 	}
 
 
-	public void getCameraStatus(String camID) {
+	public void getCameraStatus(String camID) { // getting current camera status and passing to home hub method
 		String status = parent.statusField.getText();
-		relay.sendCameraStatus(camID,status);
+		homehub.sendCameraStatus(camID,status);
 		
 	}
 }
@@ -153,7 +152,7 @@ public class CamSensor extends JFrame {
 		    rootpoa.the_POAManager().activate();
 		    
 		    // Create the Count servant object
-		    clientRef = new ClientCameraServant(this, orb);
+		    clientRef = new ClientCameraServant(this, orb); // camera client
 
 		    // get object reference from the servant
 		    org.omg.CORBA.Object ref = rootpoa.servant_to_reference(clientRef);
@@ -284,7 +283,7 @@ public class CamSensor extends JFrame {
 		statusField.setText(null);
 	}
 	
-	public void callConnectCamServer(){
+	public void callConnectCamServer(){ // calls method in camera server class
 		clientRef.setCamServer(camID);
 	}
 
@@ -295,21 +294,21 @@ public class CamSensor extends JFrame {
 				
 				JFrame frame = new JFrame();
 				
-				camID = JOptionPane.showInputDialog(frame,"Camera Name");
+				camID = JOptionPane.showInputDialog(frame,"Camera Name");  // initialize the camera name
 				
 				JFrame frame1 = new JFrame();
 				
-				homeHubName = JOptionPane.showInputDialog(frame1,"Connect to Homehub");
+				homeHubName = JOptionPane.showInputDialog(frame1,"Connect to Homehub"); // initialize the home hub name to connect to
 				
 				JFrame frame2 = new JFrame();
 				
-				roomName = JOptionPane.showInputDialog(frame2,"Room Name");
+				roomName = JOptionPane.showInputDialog(frame2,"Room Name"); // initialize the room name it belongs too
 				
 				CamSensor cam = new CamSensor(arguments, camID, homeHubName, roomName);
 				
-				cam.setVisible(true);
+				cam.setVisible(true); 
 				
-				cam.callConnectCamServer();
+				cam.callConnectCamServer(); // calls connection to give camera client to become server to home hub
 				
 			}
 		});

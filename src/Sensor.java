@@ -10,7 +10,7 @@ import java.awt.event.*;
 
 class ClientSensorServant extends ClientSensorPOA{
 	
-	private ClientAndServer.ClientServerHomeHub relay;
+	private ClientAndServer.ClientServerHomeHub homehub;
 	private ORB orb;
 	private Sensor parent;
 	
@@ -22,7 +22,7 @@ class ClientSensorServant extends ClientSensorPOA{
 			System.out.println("Initializing the ORB");
 			//ORB orb = ORB.init(args, null);
 			Properties prop = new Properties();
-			prop.put("org.omg.CORBA.ORBInitialPort","1050");
+			prop.put("org.omg.CORBA.ORBInitialPort","1050"); // defining network ports and host name
 			prop.put("org.omg.CORBA.ORBInitialPort","localhost");
 
 			// Get a reference to the Naming service
@@ -42,7 +42,7 @@ class ClientSensorServant extends ClientSensorPOA{
 			}
 			String name = parent.homeHubName;
 			// resolve the Count object reference in the Naming service
-			relay = ClientServerHomeHubHelper.narrow(nameService.resolve_str(name));
+			homehub = ClientServerHomeHubHelper.narrow(nameService.resolve_str(name)); // home hub server
 			
 		} catch (Exception e) {
 			System.out.println("ERROR : " + e) ;
@@ -51,8 +51,8 @@ class ClientSensorServant extends ClientSensorPOA{
 		
 	}
 
-	public void sendSensorPanicMessage(String sensorID, String roomName) {
-		relay.sendSensorPanicMessage(sensorID, roomName);
+	public void sendSensorPanicMessage(String sensorID, String roomName) { // calls panic message for sensor in home hub class
+		homehub.sendSensorPanicMessage(sensorID, roomName);
 		
 	}
 
@@ -88,8 +88,8 @@ public class Sensor extends JFrame {
 		    POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 		    rootpoa.the_POAManager().activate();
 		    
-		    // Create the Count servant object
-		    clientRef = new ClientSensorServant(this, orb);
+		    // Create the sensor servant object
+		    clientRef = new ClientSensorServant(this, orb); // camera sensor client
 
 		    // get object reference from the servant
 		    org.omg.CORBA.Object ref = rootpoa.servant_to_reference(clientRef);
@@ -115,6 +115,7 @@ public class Sensor extends JFrame {
 		    String name = sensorID;
 		    NameComponent[] countName = nameService.to_name(name);
 		    nameService.rebind(countName, cref);
+		    
 			textpanel = new JPanel();
 			textpanel.setLayout(null);
 
@@ -151,11 +152,11 @@ public class Sensor extends JFrame {
 				
 				JFrame frame = new JFrame();
 				
-				sensorID = JOptionPane.showInputDialog(frame,"Sensor Name");
+				sensorID = JOptionPane.showInputDialog(frame,"Sensor Name"); // initialize the sensor name
 				
 				JFrame frame1 = new JFrame();
 				
-				homeHubName = JOptionPane.showInputDialog(frame1,"Connect to Homehub");
+				homeHubName = JOptionPane.showInputDialog(frame1,"Connect to Homehub"); // initialize the home hub name
 				
 				JFrame frame2 = new JFrame();
 				

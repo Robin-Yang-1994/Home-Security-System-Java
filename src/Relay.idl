@@ -18,6 +18,8 @@ module ClientAndServer {
 	};
 	
 	typedef sequence<AlarmLogs> alarmList;
+	
+	
 	interface ClientCamera{
 	void switchOn(in string camID);
 	void switchOff(in string camID);
@@ -37,7 +39,6 @@ module ClientAndServer {
     interface ClientServerHomeHub {
     string switchOn(in string camID);
     string switchOff(in string camID);
-    string fetch_message();
     void sendSensorPanicMessage(in string sensorID, in string roomName);
 	string sendPanicMessage(in string camID);
 	void sendOkayMessage(in string camID);
@@ -51,7 +52,6 @@ module ClientAndServer {
 
     interface ServerRegionalOffice {
     readonly attribute alarmList list;
-	string hello_world();
 	string panicServer(in string camID);
 	void sensorPanicServer(in string sensorID, in string roomName);
 	string switchOn(in string camID);
