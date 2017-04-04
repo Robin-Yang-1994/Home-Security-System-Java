@@ -17,14 +17,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-class ClientServant extends ClientPOA{
+class ClientCameraServant extends ClientCameraPOA{
 	
-	private ClientAndServer.Relay relay;
+	private ClientAndServer.ClientServerHomeHub relay;
 	private ORB orb;
 	private CamSensor parent;
 	private JFrame imageFrame;
 	
-	public ClientServant(CamSensor parentGUI, ORB orb_val){
+	public ClientCameraServant(CamSensor parentGUI, ORB orb_val){
 		parent = parentGUI;
 		orb = orb_val;
 		try {
@@ -52,7 +52,7 @@ class ClientServant extends ClientPOA{
 			}
 			String name = parent.homeHubName;
 			// resolve the Count object reference in the Naming service
-			relay = RelayHelper.narrow(nameService.resolve_str(name));
+			relay = ClientServerHomeHubHelper.narrow(nameService.resolve_str(name));
 			
 		} catch (Exception e) {
 			System.out.println("ERROR : " + e) ;
@@ -109,10 +109,11 @@ class ClientServant extends ClientPOA{
 		relay.sendOkayMessage(camID);
 	}
 
-	@Override
+
 	public void getCameraStatus(String camID) {
 		String status = parent.statusField.getText();
 		relay.sendCameraStatus(camID,status);
+		
 	}
 }
 
@@ -124,7 +125,7 @@ public class CamSensor extends JFrame {
 	public static JTextField statusField;
 	public static String camID;
 	private JButton btnOff, btnOn;
-	private ClientServant clientRef;
+	private ClientCameraServant clientRef;
 	public static String homeHubName;
 	public static String roomName;
 	private JButton btnSendImage;
@@ -152,11 +153,11 @@ public class CamSensor extends JFrame {
 		    rootpoa.the_POAManager().activate();
 		    
 		    // Create the Count servant object
-		    clientRef = new ClientServant(this, orb);
+		    clientRef = new ClientCameraServant(this, orb);
 
 		    // get object reference from the servant
 		    org.omg.CORBA.Object ref = rootpoa.servant_to_reference(clientRef);
-		    ClientAndServer.Client cref = ClientHelper.narrow(ref);
+		    ClientAndServer.ClientCamera cref = ClientCameraHelper.narrow(ref);
 		    
 		    // Get a reference to the Naming service
 		    org.omg.CORBA.Object nameServiceObj = 

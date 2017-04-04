@@ -14,12 +14,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 
-class HelloServant extends HelloWorldPOA {
+class ServerRegionalOfficeServant extends ServerRegionalOfficePOA {
 	private RegionalOffice parent;
 	private ORB orb;
-	private ClientAndServer.Relay relay2;
+	private ClientAndServer.ClientServerHomeHub relay2;
 
-	public HelloServant(RegionalOffice parentGUI, ORB orb_val) {
+	public ServerRegionalOfficeServant(RegionalOffice parentGUI, ORB orb_val) {
 		// store reference to parent GUI
 		parent = parentGUI;
 		
@@ -85,7 +85,7 @@ class HelloServant extends HelloWorldPOA {
 			}
 			
 			// resolve the Count object reference in the Naming service
-			relay2 = RelayHelper.narrow(nameService.resolve_str(name));	
+			relay2 = ClientServerHomeHubHelper.narrow(nameService.resolve_str(name));	
 			
 		} catch (Exception e) {
 			System.out.println("ERROR : " + e) ;
@@ -135,7 +135,7 @@ public class RegionalOffice extends JFrame {
 	private JPanel panel;
 	private JScrollPane scrollpane;
 	private JTextArea textarea;
-	private HelloServant helloRef;
+	private ServerRegionalOfficeServant helloRef;
 	private JButton btnReset;
 	public static JTextField textFieldHub;
 	public static JTextField textFieldCam;
@@ -155,11 +155,11 @@ public class RegionalOffice extends JFrame {
 		    rootpoa.the_POAManager().activate();
 		    
 		    // Create the Count servant object
-		    helloRef = new HelloServant(this, orb);
+		    helloRef = new ServerRegionalOfficeServant(this, orb);
 
 		    // get object reference from the servant
 		    org.omg.CORBA.Object ref = rootpoa.servant_to_reference(helloRef);
-		    ClientAndServer.HelloWorld cref = HelloWorldHelper.narrow(ref);
+		    ClientAndServer.ServerRegionalOffice cref = ServerRegionalOfficeHelper.narrow(ref);
 		    
 		    // Get a reference to the Naming service
 		    org.omg.CORBA.Object nameServiceObj = 

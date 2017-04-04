@@ -10,7 +10,7 @@ import java.awt.event.*;
 
 class ClientSensorServant extends ClientSensorPOA{
 	
-	private ClientAndServer.Relay relay;
+	private ClientAndServer.ClientServerHomeHub relay;
 	private ORB orb;
 	private Sensor parent;
 	
@@ -42,7 +42,7 @@ class ClientSensorServant extends ClientSensorPOA{
 			}
 			String name = parent.homeHubName;
 			// resolve the Count object reference in the Naming service
-			relay = RelayHelper.narrow(nameService.resolve_str(name));
+			relay = ClientServerHomeHubHelper.narrow(nameService.resolve_str(name));
 			
 		} catch (Exception e) {
 			System.out.println("ERROR : " + e) ;
@@ -120,7 +120,7 @@ public class Sensor extends JFrame {
 
 			getContentPane().add(textpanel, "Center");
 			panicButton = new JButton("Send Panic");
-			panicButton.setBounds(139, 195, 117, 25);
+			panicButton.setBounds(6, 16, 388, 456);
 			textpanel.add(panicButton);
 			panicButton.addActionListener (new ActionListener() {
 				public void actionPerformed (ActionEvent evt) {

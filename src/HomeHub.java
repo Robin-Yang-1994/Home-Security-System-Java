@@ -17,19 +17,19 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
 
-class RelayServant extends RelayPOA {
+class ClientServerHomeHubServant extends ClientServerHomeHubPOA {
 
 	private ORB orb;
-	private ClientAndServer.HelloWorld server;
+	private ClientAndServer.ServerRegionalOffice server;
 	private HomeHub parent;
 	private boolean buttonFirstClick = true;
 	private long timeDiff = 0; 
 	private String messageStatus;
 	private String camID;
-	private ClientAndServer.Client relay2;
+	private ClientAndServer.ClientCamera relay2;
 
 
-	public RelayServant(HomeHub parentGUI, ORB orb_val) {
+	public ClientServerHomeHubServant(HomeHub parentGUI, ORB orb_val) {
 		// store reference to parent GUI
 		parent = parentGUI;
 
@@ -61,7 +61,7 @@ class RelayServant extends RelayPOA {
 
 			// resolve the Count object reference in the Naming service
 			String name = "Office";
-			server = HelloWorldHelper.narrow(nameService.resolve_str(name));
+			server = ServerRegionalOfficeHelper.narrow(nameService.resolve_str(name));
 			} catch (Exception e) {
 			System.out.println("ERROR : " + e) ;
 			e.printStackTrace(System.out);
@@ -107,7 +107,6 @@ class RelayServant extends RelayPOA {
 		long currTime = time.getTime();
 
 		if((timeDiff + 5000) > currTime){
-			//System.out.println("should not print this time" + timeDiff);
 			this.notifyServer(camID);
 			return"";
 		}
@@ -166,7 +165,7 @@ class RelayServant extends RelayPOA {
 			}
 			
 			// resolve the Count object reference in the Naming service
-			relay2 = ClientHelper.narrow(nameService.resolve_str(name));	
+			relay2 = ClientCameraHelper.narrow(nameService.resolve_str(name));	
 			
 		} catch (Exception e) {
 			System.out.println("ERROR : " + e) ;
@@ -199,7 +198,7 @@ public class HomeHub extends JFrame {
 	private JPanel panel;
 	private JScrollPane scrollpane;
 	private JTextArea textarea;
-	private RelayServant relayRef;
+	private ClientServerHomeHubServant relayRef;
 	public static String homeHubName;
 
 	public HomeHub(String[] args, String homeHubName2) {
@@ -219,11 +218,11 @@ public class HomeHub extends JFrame {
 		    rootpoa.the_POAManager().activate();
 		    
 		    // Create the Count servant object
-		    relayRef = new RelayServant(this, orb);
+		    relayRef = new ClientServerHomeHubServant(this, orb);
 
 		    // get object reference from the servant
 		    org.omg.CORBA.Object ref = rootpoa.servant_to_reference(relayRef);
-		    ClientAndServer.Relay cref = RelayHelper.narrow(ref);
+		    ClientAndServer.ClientServerHomeHub cref = ClientServerHomeHubHelper.narrow(ref);
 		    
 		    // Get a reference to the Naming service
 		    org.omg.CORBA.Object nameServiceObj = 
@@ -245,13 +244,17 @@ public class HomeHub extends JFrame {
 		    String name = homeHubName;
 		    NameComponent[] countName = nameService.to_name(name);
 		    nameService.rebind(countName, cref);
-		    
-		    //  wait for invocations from client
+			scrollpane = new JScrollPane();
+			scrollpane.setBounds(350, 163, 4, 4);
+			panel = new JPanel();
+			panel.setLayout(null);
+			
+			//  wait for invocations from client
 
 			// set up the GUI
 			textarea = new JTextArea(20,25);
-			scrollpane = new JScrollPane(textarea);
-			panel = new JPanel();
+			textarea.setBounds(6, 5, 388, 467);
+			panel.add(textarea);
 
 			panel.add(scrollpane);
 			getContentPane().add(panel, "Center");
