@@ -13,8 +13,12 @@ class ClientSensorServant extends ClientSensorPOA{
 	private ClientAndServer.ClientServerHomeHub homehub;
 	private ORB orb;
 	private Sensor parent;
+	private String sensorID, roomName, homeHubName;
 	
-	public ClientSensorServant(Sensor parentGUI, ORB orb_val){
+	public ClientSensorServant(Sensor parentGUI, ORB orb_val, String sensorID2, String homeHubName2, String roomName2){
+		sensorID = sensorID2;
+		homeHubName = homeHubName2;
+		roomName = roomName2;
 		parent = parentGUI;
 		orb = orb_val;
 		try {
@@ -52,7 +56,7 @@ class ClientSensorServant extends ClientSensorPOA{
 	}
 
 	public void sendSensorPanicMessage(String sensorID, String roomName) { // calls panic message for sensor in home hub class
-		homehub.sendSensorPanicMessage(sensorID, roomName);
+		homehub.sendPanicMessage(sensorID, roomName);
 		
 	}
 
@@ -89,7 +93,7 @@ public class Sensor extends JFrame {
 		    rootpoa.the_POAManager().activate();
 		    
 		    // Create the sensor servant object
-		    clientRef = new ClientSensorServant(this, orb); // camera sensor client
+		    clientRef = new ClientSensorServant(this, orb, sensorID, homeHubName, roomName ); // camera sensor client
 
 		    // get object reference from the servant
 		    org.omg.CORBA.Object ref = rootpoa.servant_to_reference(clientRef);
@@ -163,6 +167,7 @@ public class Sensor extends JFrame {
 				roomName = JOptionPane.showInputDialog(frame2,"Room Name");
 				
 				Sensor sensor = new Sensor(arguments, sensorID, homeHubName, roomName);
+				sensor.setTitle("name : "+ sensorID + " room : "+ roomName+ " connected to : "+ homeHubName);
 				
 				sensor.setVisible(true);
 				
