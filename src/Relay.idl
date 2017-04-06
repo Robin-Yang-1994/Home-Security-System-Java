@@ -3,9 +3,9 @@
 
 module ClientAndServer {
 
-	typedef sequence <string> logs;
+	typedef sequence <string> logs; // array list in idl rather than java for global access
 	
-	struct Image{
+	struct Image{ // make up image type
 	string time;
 	string  date;
 	string status;

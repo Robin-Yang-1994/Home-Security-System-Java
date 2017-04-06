@@ -26,7 +26,9 @@ class ClientCameraServant extends ClientCameraPOA{
 	private String camID, roomName, homeHubName;
 
 	public ClientCameraServant(CamSensor parentGUI, ORB orb_val,String camID2, String homeHubName2, String roomName2 ){
-
+		
+		// arguments passed from the client, defined on camera creation
+		
 		camID = camID2; // camera name 
 		homeHubName = homeHubName2; // home hub name
 		roomName = roomName2; // name of the room the camera is located
@@ -65,18 +67,18 @@ class ClientCameraServant extends ClientCameraPOA{
 		}
 	}
 
-	public void switchOn(String camID) { // calls switch on method in home hub 
+	public void switchOn(String camID) { // calls switch on method in home hub with camera name
 		homehub.switchOn(camID);
 
 	}
 
-	public void switchOff(String camID) { // calls switch off method in home hub 
+	public void switchOff(String camID) { // calls switch off method in home hub with camera name
 		homehub.switchOff(camID);
 
 	}
 
 	public void sendPanicMessage(String camID) { // calls send panic message method in home hub
-		homehub.sendPanicMessage(camID, roomName);
+		homehub.sendPanicMessage(camID, roomName); // parameter camera name and room name to determine 5 second timer 
 
 	}
 
@@ -84,11 +86,11 @@ class ClientCameraServant extends ClientCameraPOA{
 		homehub.setCamConnection(camID);
 	}
 
-	public void resetCamStatus(){  // set status field to empty 
+	public void resetCamStatus(){  // set status field to empty for resetting camera
 		parent.statusField.setText("");
 	}
 
-	public Image currentImage() { // strut format in using images 
+	public Image currentImage() { // strut type to define images (groups data types together)
 
 		Image i = new Image();
 
@@ -99,10 +101,10 @@ class ClientCameraServant extends ClientCameraPOA{
 		DateFormat minute = new SimpleDateFormat("mm");
 		DateFormat second = new SimpleDateFormat("ss");
 		Date date = new Date();
-		i.date = (year.format(date) + "/" + month.format(date) + "/" + day.format(date));
-		i.time = (hour.format(date) + ":" + minute.format(date) + ":" + second.format(date));
-		String status = i.status = parent.statusField.getText();
-		if (status.equals("")){
+		i.date = (year.format(date) + "/" + month.format(date) + "/" + day.format(date)); // set date, month and year
+		i.time = (hour.format(date) + ":" + minute.format(date) + ":" + second.format(date)); // set hour minutes and seconds
+		String status = i.status = parent.statusField.getText(); 
+		if (status.equals("")){ // if status field equal empty, set to okay instead of null
 			status = "okay";
 		}
 
@@ -112,23 +114,22 @@ class ClientCameraServant extends ClientCameraPOA{
 	}
 
 	public void sendOkayMessage(String camID) { // calling send okay message method in home hub class
-		homehub.sendOkayMessage(camID);
+		homehub.sendOkayMessage(camID); // pass camera name as parameter to home hub 
 	}
 
 
 	public void getCameraStatus(String camID) { // getting current camera status and passing to home hub method
-		String status = parent.statusField.getText();
-		homehub.sendCameraStatus(camID,status);
-
+		String status = parent.statusField.getText(); // getting camera status field text from camera interface
+		homehub.sendCameraStatus(camID,status); // send as parameter
 	}
 
 	@Override
-	public String itemName() {
+	public String itemName() { // return object
 		return camID; 
 	}
 
 	@Override
-	public String roomName() {
+	public String roomName() { // return object
 		return roomName;
 	}
 }
@@ -140,12 +141,14 @@ public class CamSensor extends JFrame {
 	public static JTextField statusField;
 	public static String camID;
 	private JButton btnOff, btnOn, okayButton, btnRequestImage, panicButton;
-	private ClientCameraServant cameraClient;
+	private ClientCameraServant cameraClient; // camera
 	public static String homeHubName;
 	public static String roomName;
 
 	public CamSensor(String[] args, String camID2, String homeHubName2, String roomName2) {
-
+		
+		// arguments passed from the client, defined on camera creation
+		
 		camID = camID2;
 		homeHubName = homeHubName2;
 		roomName = roomName2;
@@ -163,8 +166,8 @@ public class CamSensor extends JFrame {
 			POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 			rootpoa.the_POAManager().activate();
 
-			// Create the Count servant object
-			cameraClient = new ClientCameraServant(this, orb, camID, homeHubName, roomName); // camera client
+			// Create the camera servant object
+			cameraClient = new ClientCameraServant(this, orb, camID, homeHubName, roomName); // camera client passing object above to servant
 
 			// get object reference from the servant
 			org.omg.CORBA.Object ref = rootpoa.servant_to_reference(cameraClient);
@@ -186,7 +189,7 @@ public class CamSensor extends JFrame {
 				return;
 			}
 
-			// bind the Count object in the Naming service
+			// bind the camera object in the Naming service
 			String name = camID;
 			NameComponent[] countName = nameService.to_name(name);
 			nameService.rebind(countName, cref);
@@ -221,7 +224,7 @@ public class CamSensor extends JFrame {
 			okayButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					statusField.setText("Okay");	
-					cameraClient.sendOkayMessage(camID);
+					cameraClient.sendOkayMessage(camID); // calls method above in camera servant with camID 
 				}
 			});
 			okayButton.setBounds(139, 318, 117, 29);
@@ -236,7 +239,7 @@ public class CamSensor extends JFrame {
 					statusField.setEnabled(true);
 					btnOff.setEnabled(true);
 
-					cameraClient.switchOn(camID);
+					cameraClient.switchOn(camID); // calls method above in camera servant with camID 
 				}
 			});
 			btnOn.setBounds(61, 418, 117, 29);
@@ -252,7 +255,7 @@ public class CamSensor extends JFrame {
 					statusField.setText(null);
 					statusField.setEnabled(false);
 
-					cameraClient.switchOff(camID);
+					cameraClient.switchOff(camID); // calls method above in camera servant with camID 
 				}
 			});
 			btnOff.setBounds(217, 418, 117, 29);
@@ -261,7 +264,7 @@ public class CamSensor extends JFrame {
 			btnRequestImage = new JButton("Request Image");
 			btnRequestImage.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					cameraClient.currentImage();
+					cameraClient.currentImage(); // calls current image method in camera servant
 				}
 			});
 			btnRequestImage.setBounds(254, 320, 117, 29);
@@ -291,7 +294,7 @@ public class CamSensor extends JFrame {
 		}
 	}
 
-	public void resetCameraStatus(){
+	public void resetCameraStatus(){ // to be called by home hub to reset camera status
 		statusField.setText(null);
 	}
 
@@ -319,6 +322,7 @@ public class CamSensor extends JFrame {
 				CamSensor cam = new CamSensor(arguments, camID, homeHubName, roomName);
 
 				cam.setVisible(true); 
+				
 				cam.setTitle("name : "+ camID + " room : "+ roomName+ " connected to : "+ homeHubName);
 
 				cam.callConnectCamServer(); // calls connection to give camera client to become server to home hub

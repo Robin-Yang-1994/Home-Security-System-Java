@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat;
 class ClientServerHomeHubServant extends ClientServerHomeHubPOA {
 
 	private ORB orb;
-	private ClientAndServer.ServerRegionalOffice server;
+	private ClientAndServer.ServerRegionalOffice server; 
 	private HomeHub parent;
 	private boolean buttonFirstClick = true;
 	private long timeDiff = 0; 
@@ -30,14 +30,14 @@ class ClientServerHomeHubServant extends ClientServerHomeHubPOA {
 	private String homeHubName;
 	private String contact;
 	private ClientAndServer.ClientCamera camera;
-	private ArrayList <String> homeHubList  = new ArrayList<String>();
-	private static String hitRoom, hitCam; 
+	private ArrayList <String> homeHubList  = new ArrayList<String>(); // home hub array list for logs
+	private static String hitRoom, hitCam; // variable for when a room or camera has been set
 
 	public ClientServerHomeHubServant(HomeHub parentGUI, ORB orb_val, String contactNew, String newHubName) {
 		// store reference to parent GUI
 		parent = parentGUI;
 		contact = contactNew;
-		homeHubName = newHubName;
+		homeHubName = newHubName; // arguments passed from the client, defined on camera creation
 
 		// store reference to ORB
 		orb = orb_val;
@@ -72,10 +72,9 @@ class ClientServerHomeHubServant extends ClientServerHomeHubPOA {
 			System.out.println("ERROR : " + e) ;
 			e.printStackTrace(System.out);
 		}
-
 	}
 
-	public String switchOn(String camID){ // camera switch on
+	public String switchOn(String camID){ // camera switch on called by camera
 		String on = server.switchOn(camID);
 		parent.addMessage(camID + " switched on \n");
 		return on;
@@ -90,52 +89,52 @@ class ClientServerHomeHubServant extends ClientServerHomeHubPOA {
 	public void sendOkayMessage(String camID){ // home hub sends okay message to the regional office
 
 		String homeHubName = parent.getTitle();
-
 		parent.addMessage("Camera " + camID + " in " + homeHubName + " is okay \n");
-
-		server.showOkayMessage(camID, homeHubName); // calls method in the regional office with passing arguement
+		server.showOkayMessage(camID, homeHubName); // calls method in the regional office with passing argument
 	}
 
 	public String sendPanicMessage(String camID, String roomName){ // panic message with method to send panic server if pressed twice within 5 seconds
-
+																   
 		Timestamp time = new Timestamp(System.currentTimeMillis()); // define system time
 		long currTime = time.getTime(); // get system time 
 
-		if((timeDiff + 5000) > currTime){ // uses last time set to compare with new time to clarify the difference
-			if (hitRoom.equals(roomName) || hitCam.equals(camID)){
+		if((timeDiff + 5000) > currTime){ // uses last set information to compare with new time to contrast the difference
+			
+			if (hitRoom.equals(roomName) || hitCam.equals(camID)){ // false alarm if room is the same or camera name is the same
 				String add = "False alarm, only 1 camera or sensor has been triggered \n";
-				homeHubList.add(add); 
+				homeHubList.add(add); // add to array
 				return "";
 			}else{
 				hitRoom = "";
-				this.notifyServer(camID, homeHubName, contact); // if time is within 5 seconds, it will call method below
+				this.notifyServer(camID, homeHubName, contact); // if time is within 5 seconds, it will call method below with pass parameters
 				String add = "Cameras and Sensors has been paniced twice within 5 seconds \n";
-				homeHubList.add(add); 
-				return"";}
+				homeHubList.add(add);  // to array
+				return"";
+				}
 		}
-		hitRoom = roomName;
-		hitCam = camID;
+		hitRoom = roomName; // define room 
+		hitCam = camID; // define camera
 		parent.addMessage("Sensor "+ camID +" called panic \n");
 		Timestamp lastCurrTime = new Timestamp(System.currentTimeMillis());
 		timeDiff = lastCurrTime.getTime(); // set new time for use in the if statement above
 		String add = "Camera " + camID + " in " + homeHubName + " has sent sent panic \n";
-		homeHubList.add(add); 
+		homeHubList.add(add); // add to array for first panic
 		return "";
 	}
 
-	public String notifyServer(String camID, String homeHubName, String contact){ // this method is called from the if statement
-		Timestamp panicTime = new Timestamp(System.currentTimeMillis());
+	public String notifyServer(String camID, String homeHubName, String contact){ // this method is called from the if statement in send panic message method
+		Timestamp panicTime = new Timestamp(System.currentTimeMillis()); // new system time
 		messageStatus = "Assistence needed " + panicTime + "\n";
 		server.panicServer(camID, homeHubName, contact); // calls panic method in the server (regional office class)
-		server.showCamStatus(messageStatus);
+		server.showCamStatus(messageStatus); 
 		return "Notified Server";
 	}
 
-	public String[] log() {
-		ArrayList<String> tempLogs = homeHubList;
+	public String[] log() { // define log
+		ArrayList<String> tempLogs = homeHubList; 
 		String[] tempLogs2 = new String[tempLogs.size()];
 		tempLogs2 = tempLogs.toArray(tempLogs2);
-		return tempLogs2;
+		return tempLogs2; // get log object
 	}
 
 	public void sendSensorPanicMessage(String sensorID, String roomName){ // sensor calls panic method
@@ -150,7 +149,7 @@ class ClientServerHomeHubServant extends ClientServerHomeHubPOA {
 		server.connection(name);
 	}
 
-	public String setCamConnection(String name){ // method to be called by the camera class to become server to home hub
+	public String setCamConnection(String name){ // connection to be made by the camera class to become server to home hub
 		try {
 			// Initialize the ORB
 			System.out.println("Initializing the ORB");
@@ -166,17 +165,13 @@ class ClientServerHomeHubServant extends ClientServerHomeHubPOA {
 					orb.resolve_initial_references ("NameService");
 			if (nameServiceObj == null) {
 				System.out.println("nameServiceObj = null");
-
 			}
-
 			// Use NamingContextExt instead of NamingContext. This is 
 			// part of the Interoperable naming Service.  
 			NamingContextExt nameService = NamingContextExtHelper.narrow(nameServiceObj);
 			if (nameService == null) {
 				System.out.println("nameService = null");
-
 			}
-
 			// resolve the camera client object reference in the Naming service
 			camera = ClientCameraHelper.narrow(nameService.resolve_str(name));	
 
@@ -189,7 +184,7 @@ class ClientServerHomeHubServant extends ClientServerHomeHubPOA {
 
 	public void resetCamera(String c){ // connection must be made to reach method in camera class
 		setCamConnection(c);
-		camera.resetCamStatus();
+		camera.resetCamStatus(); // routes to camera class method
 	}
 
 	public void getCameraStatus(String camID) { // connection must be made to reach method in camera class
@@ -198,9 +193,7 @@ class ClientServerHomeHubServant extends ClientServerHomeHubPOA {
 	}
 
 	public void sendCameraStatus(String camID, String status) { // pass camera status to regional office, source from camera sensor
-
 		parent.addMessage("Camera " + camID + " status = " + status + "\n");
-
 		server.showCameraStatus(camID, status);
 	}
 }
@@ -216,7 +209,6 @@ public class HomeHub extends JFrame {
 	public HomeHub(String[] args, String homeHubName2, String contact2) {
 
 		homeHubName = homeHubName2;
-
 		contact = contact2;
 
 		try {
@@ -231,7 +223,7 @@ public class HomeHub extends JFrame {
 			POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 			rootpoa.the_POAManager().activate();
 
-			// Create the Count servant object
+			// Create the home hub servant object
 			homehubClient = new ClientServerHomeHubServant(this, orb, contact, homeHubName);
 
 			// get object reference from the servant
@@ -258,6 +250,7 @@ public class HomeHub extends JFrame {
 			String name = homeHubName;
 			NameComponent[] countName = nameService.to_name(name);
 			nameService.rebind(countName, cref);
+			
 			scrollpane = new JScrollPane();
 			scrollpane.setBounds(350, 163, 4, 4);
 			panel = new JPanel();
@@ -280,7 +273,6 @@ public class HomeHub extends JFrame {
 				}
 			} );
 
-
 		} catch(Exception e) {
 			System.err.println(e);
 		}
@@ -290,7 +282,7 @@ public class HomeHub extends JFrame {
 		textarea.append(message);
 	}
 
-	public void callConnect(){
+	public void callConnect(){ // called upon launch of home hub
 		homehubClient.setConnection(homeHubName);
 	}
 
@@ -310,7 +302,7 @@ public class HomeHub extends JFrame {
 
 				HomeHub hub = new HomeHub(arguments, homeHubName, contact);
 
-				hub.setVisible(true);
+				hub.setVisible(true); // gui for testing only
 
 				hub.setTitle("Homehub Name " + homeHubName);
 

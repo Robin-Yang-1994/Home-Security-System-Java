@@ -21,7 +21,7 @@ class ServerRegionalOfficeServant extends ServerRegionalOfficePOA {
 	private RegionalOffice parent;
 	private ORB orb;
 	private ClientAndServer.ClientServerHomeHub homehub;
-	private JFrame contactFrame;
+	private JFrame contactFrame; // contact number pop up
 
 	public ServerRegionalOfficeServant(RegionalOffice parentGUI, ORB orb_val) {
 		// store reference to parent GUI
@@ -35,7 +35,7 @@ class ServerRegionalOfficeServant extends ServerRegionalOfficePOA {
 
 	public String panicServer(String camID , String homeHubName, String contact){ // show panic to has been alerted twice within 5 seconds but the logic was ran in home hub
 		parent.addMessage("Sensor alert activated twice within 5 seconds \n"); 
-		JOptionPane.showMessageDialog(contactFrame, "A message has been sent to " + contact);
+		JOptionPane.showMessageDialog(contactFrame, "A message has been sent to " + contact); // pop up message contact user 
 		return "Alert received";
 	}
 
@@ -66,18 +66,15 @@ class ServerRegionalOfficeServant extends ServerRegionalOfficePOA {
 					orb.resolve_initial_references ("NameService");
 			if (nameServiceObj == null) {
 				System.out.println("nameServiceObj = null");
-
 			}
-
 			// Use NamingContextExt instead of NamingContext. This is 
 			// part of the Interoperable naming Service.  
 			NamingContextExt nameService = NamingContextExtHelper.narrow(nameServiceObj);
 			if (nameService == null) {
 				System.out.println("nameService = null");
-
 			}
 			System.out.println("name is : "+ name);
-			// resolve the Count object reference in the Naming service
+			// resolve the home hub object reference in the Naming service
 			homehub = ClientServerHomeHubHelper.narrow(nameService.resolve_str(name));	
 
 		} catch (Exception e) {
@@ -87,13 +84,12 @@ class ServerRegionalOfficeServant extends ServerRegionalOfficePOA {
 		return homehub.toString();
 	}
 
-	public void resetSensor(String camID, String homeHubName){
+	public void resetSensor(String camID, String homeHubName){  // reset camera by defining home hub and camera
 		System.out.println("conn called by resetSensor");
 		connection(parent.textFieldHub.getText());
-		camID = parent.textFieldCam.getText();
-		homehub.resetCamera(camID);
+		camID = parent.textFieldCam.getText(); // set camera name to reset
+		homehub.resetCamera(camID); // calls method name in home hub server
 		parent.addMessage("Alarm " + camID + " in " + homeHubName +" has been resetted \n");
-
 	}
 
 	public void getStatus(String camID, String homeHubName) { // getting a status from a camera
@@ -115,11 +111,11 @@ class ServerRegionalOfficeServant extends ServerRegionalOfficePOA {
 		parent.addMessage("Sensor " + sensorID +" in "+ roomName +" has been alerted \n");
 	}
 
-	public void getLog(String homeHubName) {
+	public void getLog(String homeHubName) {  // retrieve the home hub log from array
 		System.out.println("conn called by getLog");
 		connection(parent.homeHubLog.getText());
 		String[] logz = homehub.log();
-		for (int i = 0; i < logz.length; i++){
+		for (int i = 0; i < logz.length; i++){ // for loop to echo all logs 
 			parent.showLog(logz[i]); 
 		}
 	}
@@ -133,7 +129,6 @@ public class RegionalOffice extends JFrame {
 	private JButton btnReset, btnShowHBLog;
 	public static JTextField textFieldHub, textFieldCam;
 	public JTextField homeHubLog;
-
 
 	public RegionalOffice(String[] args){
 
@@ -176,6 +171,7 @@ public class RegionalOffice extends JFrame {
 			String name = "Office";
 			NameComponent[] countName = nameService.to_name(name);
 			nameService.rebind(countName, cref);
+			
 			panel = new JPanel();
 			getContentPane().add(panel, "Center");
 
@@ -183,7 +179,7 @@ public class RegionalOffice extends JFrame {
 			btnReset.setBounds(179, 357, 117, 29);
 			btnReset.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					officeClient.resetSensor(textFieldCam.getText(), textFieldHub.getText());
+					officeClient.resetSensor(textFieldCam.getText(), textFieldHub.getText()); // get text from both fields to reset the chosen sensor
 				}
 			});
 			panel.setLayout(null);
@@ -219,22 +215,21 @@ public class RegionalOffice extends JFrame {
 			JButton btnSaveLog = new JButton("Save as Log");
 			btnSaveLog.setBounds(319, 357, 97, 85);
 			btnSaveLog.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
+				public void actionPerformed(ActionEvent e) {  // save to text file
 
-					String date = new SimpleDateFormat ("ddMMyyyy'.txt'").format(new Date());
-					String path = "./" + date;
+					String date = new SimpleDateFormat ("ddMMyyyy'.txt'").format(new Date()); // set the date as file name
+					String path = "./" + date; // null path for default saving space (within the project work space)
 
-					try(FileWriter fw = new FileWriter(path, true);
+					try(FileWriter fw = new FileWriter(path, true);  // set path and content is continuously written
 							BufferedWriter bw = new BufferedWriter(fw);
 							PrintWriter out = new PrintWriter(bw))
 					{
 						out.write(textarea.getText());
-						textarea.append("Log has been saved \n");
+						textarea.append("Log has been saved \n"); // confirmation
 
 					}catch(IOException er){
 						System.err.println("ERROR: " + er);
 					};
-
 				}
 			});
 			scrollpane = new JScrollPane(textarea);
@@ -242,8 +237,6 @@ public class RegionalOffice extends JFrame {
 
 			panel.add(scrollpane);
 
-
-			// set up the GUI
 			textarea = new JTextArea(20,25);
 			textarea.setBounds(16, 7, 360, 320);
 			scrollpane.setViewportView(textarea);
@@ -287,14 +280,13 @@ public class RegionalOffice extends JFrame {
 			System.err.println("ERROR: " + e);
 			e.printStackTrace(System.out);
 		}
-
 	}
 
 	public void addMessage(String message){
 		textarea.append(message);
 	}
 
-	public void showLog (String logMessage){
+	public void showLog (String logMessage){ // show log
 		textAreaHBLog.append(logMessage);
 	}
 

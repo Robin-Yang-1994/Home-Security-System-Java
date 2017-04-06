@@ -46,14 +46,12 @@ class ClientSensorServant extends ClientSensorPOA{
 				return;
 			}
 			String name = parent.homeHubName;
-			// resolve the Count object reference in the Naming service
 			homehub = ClientServerHomeHubHelper.narrow(nameService.resolve_str(name)); // home hub server
 			
 		} catch (Exception e) {
 			System.out.println("ERROR : " + e) ;
 			e.printStackTrace(System.out);
 		}
-		
 	}
 
 	public void sendSensorPanicMessage(String sensorID, String roomName) { // calls panic message for sensor in home hub class
@@ -140,7 +138,6 @@ public class Sensor extends JFrame {
 				}
 			} );
 
-
 		} catch (Exception e) {
 			System.out.println("ERROR : " + e) ;
 			e.printStackTrace(System.out);
@@ -162,13 +159,13 @@ public class Sensor extends JFrame {
 				
 				JFrame frame2 = new JFrame();
 				
-				roomName = JOptionPane.showInputDialog(frame2,"Room Name");
+				roomName = JOptionPane.showInputDialog(frame2,"Room Name"); // initialize the room name
 				
-				Sensor sensor = new Sensor(arguments, sensorID, homeHubName, roomName);
+				Sensor sensor = new Sensor(arguments, sensorID, homeHubName, roomName); 
+				
 				sensor.setTitle("name : "+ sensorID + " room : "+ roomName+ " connected to : "+ homeHubName);
 				
 				sensor.setVisible(true);
-				
 			}
 		});
 	}

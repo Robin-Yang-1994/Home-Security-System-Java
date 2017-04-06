@@ -1,4 +1,0 @@
-Camera cam1 in Homehub Name hub1 is okay 
-Camera cam1 status = Okay
-Calling for cam1 status 
-Alarm cam1 in hub1 has been resetted 

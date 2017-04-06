@@ -1,0 +1,34 @@
+1. compile IDL
+
+	idlj -fall Relay.idl
+
+2. Compile all stubs and skeletons
+
+	javac *.java ClientAndServer/*.java
+
+Instructions to run the Home security system
+
+First run the regional office
+
+Second run home hub, give name and set contact number for messages
+
+Third run camera/sensor, give both name, the existing hub name and rooms (different rooms)
+
+Features:
+
+Send panic
+Send okay
+See status
+Request image
+Switch on/off
+Assign rooms - 2 rooms, one camera or sensor, sensor and sensor, camera and camera to set of alarm
+Check camera status
+Reset Alarm
+View camera/sensor logs
+Save logs to text file
+View home hub logs
+Send user text message
+
+
+
+
