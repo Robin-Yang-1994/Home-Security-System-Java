@@ -19,7 +19,7 @@ import java.awt.event.*;
 
 class ClientCameraServant extends ClientCameraPOA{
 
-	private ClientAndServer.ClientServerHomeHub homehub; // home hub class 
+	private ClientAndServer.ClientServerHomeHub homehub; // home hub class   
 	private ORB orb; //object request broker- middle ware which allows program to call to another computer via a network
 	private CamSensor parent; // parent class
 	private JFrame imageFrame; // j frame for pop up image information
