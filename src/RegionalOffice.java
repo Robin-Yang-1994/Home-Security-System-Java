@@ -26,15 +26,8 @@ class ServerRegionalOfficeServant extends ServerRegionalOfficePOA {
 	public ServerRegionalOfficeServant(RegionalOffice parentGUI, ORB orb_val) {
 		// store reference to parent GUI
 		parent = parentGUI;
-
 		orb = orb_val;
 	}
-
-	//	public String hello_world() {
-	//		parent.addMessage("hello_world called by relay.\n    Replying with message...\n\n");
-	//
-	//		return "Hello World!!";
-	//	}
 
 	public void showOkayMessage(String camID, String homeHubName){ // display camera name from which home hub with okay status
 		parent.addMessage("Camera " + camID + " in " + homeHubName + " is okay \n");
@@ -64,10 +57,6 @@ class ServerRegionalOfficeServant extends ServerRegionalOfficePOA {
 		try {
 			// Initialize the ORB
 			System.out.println("Initializing the ORB");
-
-			//			Properties prop = new Properties();
-			//			prop.put("org.omg.CORBA.ORBInitialPort","1050");
-			//			prop.put("org.omg.CORBA.ORBInitialPort","localhost");
 			String[] sArr = {"-ORBInitialPort","1050"};
 
 			ORB orb = ORB.init(sArr, null);
@@ -98,7 +87,7 @@ class ServerRegionalOfficeServant extends ServerRegionalOfficePOA {
 		return homehub.toString();
 	}
 
-	public void resetSensor(String camID, String homeHubName){ // only deletes one sensor
+	public void resetSensor(String camID, String homeHubName){
 		System.out.println("conn called by resetSensor");
 		connection(parent.textFieldHub.getText());
 		camID = parent.textFieldCam.getText();
@@ -112,9 +101,7 @@ class ServerRegionalOfficeServant extends ServerRegionalOfficePOA {
 		connection(parent.textFieldHub.getText());
 		homehub.getCameraStatus(camID);
 		parent.addMessage("Calling for " + camID + " status \n");
-
 	}
-
 
 	public void showSensorStatus(String messageStatus) { // display the content held in the message status for sensor
 		parent.addMessage(messageStatus);
@@ -138,17 +125,15 @@ class ServerRegionalOfficeServant extends ServerRegionalOfficePOA {
 	}
 }
 
-
 public class RegionalOffice extends JFrame {
 	private JPanel panel;
 	private JScrollPane scrollpane;
 	private JTextArea textarea, textAreaHBLog;
-	private ServerRegionalOfficeServant helloRef;
-	private JButton btnReset;
-	public static JTextField textFieldHub;
+	private ServerRegionalOfficeServant officeClient;
+	private JButton btnReset, btnShowHBLog;
+	public static JTextField textFieldHub, textFieldCam;
 	public JTextField homeHubLog;
-	public static JTextField textFieldCam;
-	private JButton btnShowHBLog;
+
 
 	public RegionalOffice(String[] args){
 
@@ -164,11 +149,11 @@ public class RegionalOffice extends JFrame {
 			POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 			rootpoa.the_POAManager().activate();
 
-			// Create the Count servant object
-			helloRef = new ServerRegionalOfficeServant(this, orb);
+			// Create the regional office servant object
+			officeClient = new ServerRegionalOfficeServant(this, orb);
 
 			// get object reference from the servant
-			org.omg.CORBA.Object ref = rootpoa.servant_to_reference(helloRef);
+			org.omg.CORBA.Object ref = rootpoa.servant_to_reference(officeClient);
 			ClientAndServer.ServerRegionalOffice cref = ServerRegionalOfficeHelper.narrow(ref);
 
 			// Get a reference to the Naming service
@@ -198,7 +183,7 @@ public class RegionalOffice extends JFrame {
 			btnReset.setBounds(179, 357, 117, 29);
 			btnReset.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					helloRef.resetSensor(textFieldCam.getText(), textFieldHub.getText());
+					officeClient.resetSensor(textFieldCam.getText(), textFieldHub.getText());
 				}
 			});
 			panel.setLayout(null);
@@ -226,7 +211,7 @@ public class RegionalOffice extends JFrame {
 			btnGetStatus.setBounds(179, 416, 117, 29);
 			btnGetStatus.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					helloRef.getStatus(textFieldCam.getText(), textFieldHub.getText());
+					officeClient.getStatus(textFieldCam.getText(), textFieldHub.getText());
 				}
 			});
 			panel.add(btnGetStatus);
@@ -268,7 +253,7 @@ public class RegionalOffice extends JFrame {
 			btnShowHBLog.setBounds(447, 381, 193, 49);
 			btnShowHBLog.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					helloRef.getLog(homeHubLog.getText());;
+					officeClient.getLog(homeHubLog.getText());;
 				}
 			});
 			panel.add(btnShowHBLog);

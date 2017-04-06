@@ -1,0 +1,16 @@
+Sensor alert activated twice within 5 seconds 
+Assistence needed 2017-04-06 00:22:50.819
+Sensor alert activated twice within 5 seconds 
+Assistence needed 2017-04-06 00:22:50.819
+Log has been saved 
+Sensor alert activated twice within 5 seconds 
+Assistence needed 2017-04-06 00:23:17.27
+Sensor alert activated twice within 5 seconds 
+Assistence needed 2017-04-06 00:22:50.819
+Log has been saved 
+Sensor alert activated twice within 5 seconds 
+Assistence needed 2017-04-06 00:23:17.27
+Log has been saved 
+Alarm  in  has been resetted 
+Camera  status = 
+Calling for  status 

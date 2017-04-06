@@ -21,6 +21,7 @@ class ClientSensorServant extends ClientSensorPOA{
 		roomName = roomName2;
 		parent = parentGUI;
 		orb = orb_val;
+		
 		try {
 			// Initialize the ORB
 			System.out.println("Initializing the ORB");
@@ -57,7 +58,6 @@ class ClientSensorServant extends ClientSensorPOA{
 
 	public void sendSensorPanicMessage(String sensorID, String roomName) { // calls panic message for sensor in home hub class
 		homehub.sendPanicMessage(sensorID, roomName);
-		
 	}
 
 }
@@ -66,7 +66,7 @@ public class Sensor extends JFrame {
 	private JPanel textpanel;
 	private JButton panicButton;
 	public static String sensorID;
-	private ClientSensorServant clientRef;
+	private ClientSensorServant sensorClient;
 	public static String homeHubName;
 	public static String roomName;
 	public static JTextField statusField;
@@ -74,9 +74,7 @@ public class Sensor extends JFrame {
 	public Sensor(String[] args, String sensorID2, String homeHubName2, String roomName2) {
 		
 		sensorID = sensorID2;
-		
 		homeHubName = homeHubName2;
-		
 		roomName = roomName2;
 		
 		try {
@@ -93,10 +91,10 @@ public class Sensor extends JFrame {
 		    rootpoa.the_POAManager().activate();
 		    
 		    // Create the sensor servant object
-		    clientRef = new ClientSensorServant(this, orb, sensorID, homeHubName, roomName ); // camera sensor client
+		    sensorClient = new ClientSensorServant(this, orb, sensorID, homeHubName, roomName ); // camera sensor client
 
 		    // get object reference from the servant
-		    org.omg.CORBA.Object ref = rootpoa.servant_to_reference(clientRef);
+		    org.omg.CORBA.Object ref = rootpoa.servant_to_reference(sensorClient);
 		    ClientAndServer.ClientSensor cref = ClientSensorHelper.narrow(ref);
 		    
 		    // Get a reference to the Naming service
@@ -129,7 +127,7 @@ public class Sensor extends JFrame {
 			textpanel.add(panicButton);
 			panicButton.addActionListener (new ActionListener() {
 				public void actionPerformed (ActionEvent evt) {
-					clientRef.sendSensorPanicMessage(sensorID, roomName);
+					sensorClient.sendSensorPanicMessage(sensorID, roomName);
 				}
 			});
 

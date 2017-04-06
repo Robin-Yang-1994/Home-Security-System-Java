@@ -36,7 +36,6 @@ class ClientServerHomeHubServant extends ClientServerHomeHubPOA {
 	public ClientServerHomeHubServant(HomeHub parentGUI, ORB orb_val, String contactNew, String newHubName) {
 		// store reference to parent GUI
 		parent = parentGUI;
-
 		contact = contactNew;
 		homeHubName = newHubName;
 
@@ -88,17 +87,6 @@ class ClientServerHomeHubServant extends ClientServerHomeHubPOA {
 		return off;
 	}
 
-	//	public String fetch_message() {
-	//		parent.addMessage("fetch_message called by client.  Calling server..\n");
-	//
-	//		String messageFromServer = server.hello_world();
-	//
-	//		parent.addMessage("message from server = " + messageFromServer + "\n"
-	//				+ "   Now forwarding to client..\n\n");
-	//
-	//		return messageFromServer;
-	//	}
-
 	public void sendOkayMessage(String camID){ // home hub sends okay message to the regional office
 
 		String homeHubName = parent.getTitle();
@@ -115,15 +103,13 @@ class ClientServerHomeHubServant extends ClientServerHomeHubPOA {
 
 		if((timeDiff + 5000) > currTime){ // uses last time set to compare with new time to clarify the difference
 			if (hitRoom.equals(roomName) || hitCam.equals(camID)){
-				//hitRoom = "";
-				//hitCam = "";
-				String add = "false alarm \n";
+				String add = "False alarm, only 1 camera or sensor has been triggered \n";
 				homeHubList.add(add); 
 				return "";
 			}else{
 				hitRoom = "";
 				this.notifyServer(camID, homeHubName, contact); // if time is within 5 seconds, it will call method below
-				String add = "Camera " + camID + " has been panic twice within 5 seconds \n";
+				String add = "Cameras and Sensors has been paniced twice within 5 seconds \n";
 				homeHubList.add(add); 
 				return"";}
 		}
@@ -191,7 +177,7 @@ class ClientServerHomeHubServant extends ClientServerHomeHubPOA {
 
 			}
 
-			// resolve the client object reference in the Naming service
+			// resolve the camera client object reference in the Naming service
 			camera = ClientCameraHelper.narrow(nameService.resolve_str(name));	
 
 		} catch (Exception e) {

@@ -28,9 +28,7 @@ class ClientCameraServant extends ClientCameraPOA{
 	public ClientCameraServant(CamSensor parentGUI, ORB orb_val,String camID2, String homeHubName2, String roomName2 ){
 
 		camID = camID2;
-
 		homeHubName = homeHubName2;
-
 		roomName = roomName2;
 
 		parent = parentGUI;
@@ -141,22 +139,17 @@ public class CamSensor extends JFrame {
 	private JPanel textpanel, buttonpanel;
 	private JScrollPane scrollpane;
 	private JTextArea textarea;
-	private JButton panicButton;
 	public static JTextField statusField;
 	public static String camID;
-	private JButton btnOff, btnOn;
-	private ClientCameraServant clientRef;
+	private JButton btnOff, btnOn, okayButton, btnRequestImage, panicButton;
+	private ClientCameraServant cameraClient;
 	public static String homeHubName;
 	public static String roomName;
-	private JButton btnSendImage;
-	private JButton okayButton;
 
 	public CamSensor(String[] args, String camID2, String homeHubName2, String roomName2) {
 
 		camID = camID2;
-
 		homeHubName = homeHubName2;
-
 		roomName = roomName2;
 
 		try {
@@ -173,10 +166,10 @@ public class CamSensor extends JFrame {
 			rootpoa.the_POAManager().activate();
 
 			// Create the Count servant object
-			clientRef = new ClientCameraServant(this, orb, camID, homeHubName, roomName); // camera client
+			cameraClient = new ClientCameraServant(this, orb, camID, homeHubName, roomName); // camera client
 
 			// get object reference from the servant
-			org.omg.CORBA.Object ref = rootpoa.servant_to_reference(clientRef);
+			org.omg.CORBA.Object ref = rootpoa.servant_to_reference(cameraClient);
 			ClientAndServer.ClientCamera cref = ClientCameraHelper.narrow(ref);
 
 			// Get a reference to the Naming service
@@ -230,7 +223,7 @@ public class CamSensor extends JFrame {
 			okayButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					statusField.setText("Okay");	
-					clientRef.sendOkayMessage(camID);
+					cameraClient.sendOkayMessage(camID);
 				}
 			});
 			okayButton.setBounds(139, 318, 117, 29);
@@ -240,12 +233,12 @@ public class CamSensor extends JFrame {
 			btnOn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					okayButton.setEnabled(true);
-					btnSendImage.setEnabled(true);
+					btnRequestImage.setEnabled(true);
 					panicButton.setEnabled(true);
 					statusField.setEnabled(true);
 					btnOff.setEnabled(true);
 
-					clientRef.switchOn(camID);
+					cameraClient.switchOn(camID);
 				}
 			});
 			btnOn.setBounds(61, 418, 117, 29);
@@ -254,32 +247,32 @@ public class CamSensor extends JFrame {
 			btnOff = new JButton("Off");
 			btnOff.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					btnSendImage.setEnabled(false);
+					btnRequestImage.setEnabled(false);
 					okayButton.setEnabled(false);
 					panicButton.setEnabled(false);
 					btnOff.setEnabled(false);
 					statusField.setText(null);
 					statusField.setEnabled(false);
 
-					clientRef.switchOff(camID);
+					cameraClient.switchOff(camID);
 				}
 			});
 			btnOff.setBounds(217, 418, 117, 29);
 			textpanel.add(btnOff);
 
-			btnSendImage = new JButton("Send Image");
-			btnSendImage.addActionListener(new ActionListener() {
+			btnRequestImage = new JButton("Request Image");
+			btnRequestImage.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					clientRef.currentImage();
+					cameraClient.currentImage();
 				}
 			});
-			btnSendImage.setBounds(254, 320, 117, 29);
-			textpanel.add(btnSendImage);
+			btnRequestImage.setBounds(254, 320, 117, 29);
+			textpanel.add(btnRequestImage);
 			panicButton.addActionListener (new ActionListener() {
 				public void actionPerformed (ActionEvent evt) {
 
 					statusField.setText("Assistance Needed");	
-					clientRef.sendPanicMessage(camID);
+					cameraClient.sendPanicMessage(camID);
 				}
 			});
 			getContentPane().add(buttonpanel, "South");
@@ -305,7 +298,7 @@ public class CamSensor extends JFrame {
 	}
 
 	public void callConnectCamServer(){ // calls method in camera server class
-		clientRef.setCamServer(camID);
+		cameraClient.setCamServer(camID);
 	}
 
 	public static void main(String args[]) {
