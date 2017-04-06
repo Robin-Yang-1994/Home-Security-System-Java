@@ -1,16 +1,4 @@
-Sensor alert activated twice within 5 seconds 
-Assistence needed 2017-04-06 00:22:50.819
-Sensor alert activated twice within 5 seconds 
-Assistence needed 2017-04-06 00:22:50.819
-Log has been saved 
-Sensor alert activated twice within 5 seconds 
-Assistence needed 2017-04-06 00:23:17.27
-Sensor alert activated twice within 5 seconds 
-Assistence needed 2017-04-06 00:22:50.819
-Log has been saved 
-Sensor alert activated twice within 5 seconds 
-Assistence needed 2017-04-06 00:23:17.27
-Log has been saved 
-Alarm  in  has been resetted 
-Camera  status = 
-Calling for  status 
+Camera cam1 in Homehub Name hub1 is okay 
+Camera cam1 status = Okay
+Calling for cam1 status 
+Alarm cam1 in hub1 has been resetted 

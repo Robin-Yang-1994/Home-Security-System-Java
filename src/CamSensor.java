@@ -19,24 +19,24 @@ import java.awt.event.*;
 
 class ClientCameraServant extends ClientCameraPOA{
 
-	private ClientAndServer.ClientServerHomeHub homehub;
-	private ORB orb;
-	private CamSensor parent;
-	private JFrame imageFrame;
+	private ClientAndServer.ClientServerHomeHub homehub; // home hub class 
+	private ORB orb; //object request broker- middle ware which allows program to call to another computer via a network
+	private CamSensor parent; // parent class
+	private JFrame imageFrame; // j frame for pop up image information
 	private String camID, roomName, homeHubName;
 
 	public ClientCameraServant(CamSensor parentGUI, ORB orb_val,String camID2, String homeHubName2, String roomName2 ){
 
-		camID = camID2;
-		homeHubName = homeHubName2;
-		roomName = roomName2;
+		camID = camID2; // camera name 
+		homeHubName = homeHubName2; // home hub name
+		roomName = roomName2; // name of the room the camera is located
 
 		parent = parentGUI;
 		orb = orb_val;
 		try {
 			// Initialize the ORB
 			System.out.println("Initializing the ORB");
-			//ORB orb = ORB.init(args, null);
+			
 			Properties prop = new Properties();
 			prop.put("org.omg.CORBA.ORBInitialPort","1050"); // defining network ports and host name
 			prop.put("org.omg.CORBA.ORBInitialPort","localhost");
@@ -49,22 +49,20 @@ class ClientCameraServant extends ClientCameraPOA{
 				return;
 			}
 
-			// Use NamingContextExt instead of NamingContext. This is 
-			// part of the Interoperable naming Service.  
+			// Use NamingContextExt instead of NamingContext. This is part of the Interoperable naming Service.  
 			NamingContextExt nameService = NamingContextExtHelper.narrow(nameServiceObj);
 			if (nameService == null) {
 				System.out.println("nameService = null");
 				return;
 			}
-			String name = parent.homeHubName; 
-			// resolve the Count object reference in the Naming service
+			String name = parent.homeHubName; // match name with the home hub name in home hub class
+			// resolve the home hub object reference in the Naming service
 			homehub = ClientServerHomeHubHelper.narrow(nameService.resolve_str(name)); // home hub server
 
 		} catch (Exception e) {
 			System.out.println("ERROR : " + e) ;
 			e.printStackTrace(System.out);
 		}
-
 	}
 
 	public void switchOn(String camID) { // calls switch on method in home hub 
